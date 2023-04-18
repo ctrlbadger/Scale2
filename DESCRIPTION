@@ -25,6 +25,7 @@ Imports:
     rlang,
     Rmpfr,
     scale,
+    stringr,
     tibble,
     tidyr
 Depends: 

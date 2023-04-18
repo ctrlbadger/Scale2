@@ -1,6 +1,7 @@
 library(usethis)
 library(rlang)
-
+library(Scale2) # nolint: missing_package_linter.
+library(tidyverse)
 
 create_normal_data <- function() {
 
@@ -124,108 +125,3 @@ test_SCALE_mean_normal <- function() {
 
 }
 
-normal_weight_point_path <- function(debug_hist, idx, dist_data, unscale = FALSE) {
-  lim_max <- 10
-  lim_length <- 1000
-  mu_x <- seq(-lim_max, lim_max, length.out = lim_length)
-
-
-  if (unscale) {
-    x_unscale_vectoriser <- function(x) {
-      map_dbl(x, dist_data$x_unscale)
-      #x * dist_data$sigma_est + dist_data$x_hat
-    }
-  }else {
-    x_unscale_vectoriser <- function(x) x
-  }
-  debug_trbl <- debug_hist[idx] %>%
-    map(as_tibble) %>%
-    imap(., ~ mutate(.x, path_curr = x_unscale_vectoriser(path_curr), norm_weight = norm_weight / length(idx), mesh_idx = idx[.y], .keep='used')) %>%
-    map(as_tibble) %>%
-    reduce(add_row) %>% mutate(mesh_idx = as_factor(mesh_idx))
-
-  print(head(debug_trbl))
-
-  pi_actual <- map_dbl(mu_x, dist_data$pi_actual)
-  pi_observed <- map_dbl(mu_x, dist_data$pi_observed)
-  pi_vals <- tibble(mu_x, pi_actual, pi_observed) %>%
-    pivot_longer(cols = -1, names_to = "pi_method", values_to="pi") %>% mutate(pi_method = as.factor(pi_method))
-
-  ggplot() +
-    geom_line(data = pi_vals, aes(x=mu_x, y=pi, linetype=pi_method), inherit.aes = FALSE) +
-    geom_point(data = debug_trbl, aes(x = path_curr, y=0, size = norm_weight, colour=mesh_idx), alpha = 0.2, inherit.aes = FALSE) +
-    geom_density(data = debug_trbl, aes(x = path_curr, weight = norm_weight, fill=mesh_idx), alpha = 0.2, inherit.aes = FALSE) +
-    xlim(-5, 10) +
-    guides(size = "none")
-  # geom_boxplot(data = debug_trbl, aes(x = path_curr, weight = norm_weight, colour=mesh_idx), inherit.aes = FALSE)
-}
-
-id_trace_path <- function(debug_hist, idx = seq_along(debug_hist), show_lines = TRUE, show_points = TRUE, sample_particles = TRUE, show_resample = TRUE) {
-  id <- map(debug_hist[idx], "id")
-  resample_every <- parameters$resample_every
-
-  debug_trbl <- debug_hist[idx]
-
-  sample_idx<- 1:100
-  if (sample_particles)  {
-    debug_trbl <- debug_trbl %>% map(., ~ as_tibble(.x)[sample_idx, ])
-    id <- id %>% map(., ~ (.x)[sample_idx])
-  } else {
-    debug_trbl <- debug_trbl %>% map(., ~ as_tibble(.x))
-  }
-
-  debug_trbl  <- debug_trbl %>%
-    imap(., ~ mutate(.x, path_curr, .keep='used', mesh_idx = idx[.y], location = seq_along(path_curr), norm_weight = norm_weight, resample = resample)) %>%
-    map(as_tibble) %>%
-    reduce(add_row) %>% mutate(id = as_factor(unlist(id)), mesh_idx = mesh_idx, location = as_factor(location))
-
-  resample_points <- idx[map_lgl(debug_hist, "resample")]
-
-
-  mean_trace <- debug_trbl %>%
-    group_by(mesh_idx) %>% summarise(avg_path = mean(path_curr))
-
-  temp_plot <- ggplot()
-  if (show_lines) {
-    temp_plot <- temp_plot +
-      geom_line(data=debug_trbl, aes(x=mesh_idx, y=path_curr, colour = location), linewidth = 0.95, alpha  = 0.5)
-  }
-  if (show_points) {
-    temp_plot <- temp_plot +
-      geom_point(data=debug_trbl, aes(x = mesh_idx, y=path_curr, size=(10*norm_weight)^2, colour = location), alpha  = 0.5)
-  }
-  if (show_resample) {
-    temp_plot <- temp_plot +
-      geom_vline(xintercept = resample_points, linetype = 'dotted', color = "red" )
-  }
-  temp_plot +
-    geom_line(data=mean_trace, aes(x = mesh_idx, y=avg_path), linewidth = 1, linetype='longdash') +
-    scale_fill_continuous(type = "viridis") +
-    guides(color = "none", size="none")
-}
-
-plot_ess <- function(debug_hist, show_ess_thresh = FALSE) {
-  if (show_ess_thresh) {
-    temp_ess_thresh <- NULL
-    temp_resample_every <- NULL
-    temp_ess_thresh <- parameters$ess_thresh
-    # try(temp_ess_thresh <- as.list(parameters[[1]])$ess_thresh)
-    # try(temp_resample_every <- as.list(parameters[[1]])$resample_every)
-    temp_resample_every <- parameters$resample_every
-    if (is.numeric(temp_ess_thresh)) ess_thresh <- temp_ess_thresh
-    if (is.numeric(temp_resample_every)) ess_thresh <- temp_ess_thresh
-  }
-  # print(ess_thresh)
-  ess_tbl <- tibble(mesh_idx = seq_along(debug_hist),
-                    ess = map_dbl(debug_hist, "ess"),
-                    resample =  as.factor(map_lgl(debug_hist, "resample")))
-
-  ess_plot <- ggplot(data=ess_tbl, aes(x = mesh_idx, y = ess, colour = resample)) +
-    geom_point()
-
-  if (show_ess_thresh && (ess_thresh <= 1)) {
-    ess_plot <- ess_plot + geom_hline(yintercept = ess_thresh, linetype="longdash", linewidth=1)
-  }
-
-  ess_plot
-}

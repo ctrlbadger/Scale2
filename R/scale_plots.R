@@ -1,14 +1,15 @@
 
 id_trace_path <- function(debug_hist, idx = seq_along(debug_hist), show_lines = TRUE, show_points = TRUE, sample_particles = TRUE, show_resample = TRUE) {
+
   id <- map(debug_hist[idx], "id")
   resample_every <- parameters$resample_every
 
   debug_trbl <- debug_hist[idx]
 
-  sample_idx<- 1:100
+  sample_idx <- 1:100
   if (sample_particles)  {
     debug_trbl <- debug_trbl %>% map(., ~ as_tibble(.x)[sample_idx, ])
-    id <- id %>% map(., ~ (.x)[sample_idx])
+    id <- id %>% purrr::map(., ~ (.x)[sample_idx])
   } else {
     debug_trbl <- debug_trbl %>% map(., ~ as_tibble(.x))
   }
@@ -85,3 +86,4 @@ trace_path <- function(debug_hist, idx = seq_along(debug_hist)) {
     scale_fill_continuous(type = "viridis")
 
 }
+

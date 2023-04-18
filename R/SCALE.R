@@ -52,7 +52,7 @@ particle <- function(d, path_curr, theta, log_weight = NULL, id = NULL) {
 init_particles <- function(num_particles, d, theta, data) {
   # Initialise a list of particles with a normal distributed path
   # path_curr <- map(seq_along(d), rnorm())
-  map(1:num_particles, ~ particle(d, path_curr = rep(runif(1, min=-1, max = 1), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
+  purrr::map(1:num_particles, ~ particle(d, path_curr = rep(runif(1, min=-1, max = 1), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
   # map(1:num_particles, ~ particle(d, path_curr = rep(rnorm(1, mean=0, sd=data$inv_lambda), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
 }
 
@@ -120,7 +120,7 @@ update_hypercube <- function(p) {
 center_hypercube <- function(p) {
   # For each dimension, find hitting time and location and initialise them
   # This function calls to the original scale reference paper
-  bm_pass_info <- map2(p$path_curr, p$theta, ~ bm.pass(s = p$time_curr, x = .x, theta = .y)) |>
+  bm_pass_info <- purrr::map2(p$path_curr, p$theta, ~ bm.pass(s = p$time_curr, x = .x, theta = .y)) |>
     purrr::list_transpose(simplify = TRUE)
 
   p$path_l <- p$path_curr - p$theta
@@ -173,7 +173,7 @@ update_trajectory <- function(p) {
 
 # Helper function for returning info about the algorithm
 particle_snapshot <- function(particles, ...) {
-  list_transpose(particles) |>  append(values = list(...))
+  purrr::list_transpose(particles) |>  append(values = list(...))
 }
 
 SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thresh = 0, parallel = FALSE, resample_every = 10, rescale = FALSE, subsample = FALSE) {
@@ -197,12 +197,8 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
 
 
   for (mesh_idx in seq_along(mesh_times)) {
-
-
-
-
-    propogate_info <- map(particles, ~ propogate_to_time_target(.x, mesh_times[mesh_idx], data, rescale, subsample), .progress=TRUE) |>
-      list_transpose()
+    propogate_info <- purrr::map(particles, ~ propogate_to_time_target(.x, mesh_times[mesh_idx], data, rescale, subsample), .progress=TRUE) |>
+      purrr::list_transpose()
 
     particles <- propogate_info$p
     incr_log_weight <- propogate_info$incr_log_weight
@@ -223,7 +219,7 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
 
     # COME BACK TO THIS FUNCTION LATER
     if (d == 1) {
-      path_hist[mesh_idx, , 1] <- map_dbl(particles, "path_curr")
+      path_hist[mesh_idx, , 1] <- purrr::map_dbl(particles, "path_curr")
     } else {
       stop("Implement multi-dimensional save")
     }

@@ -217,7 +217,7 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
         diag(c(self$sigma_est^-2, 4 * self$sigma_est^-2))
     },
     hessian_ll_i = function(i) { # Hessian log likelihood for datum i
-        diag(c(-self$sigma_est^-2, -self$sigma_est^-2 - 3 *(self$data_x[i] - self$x_hat)^2*self$sigma_est^(-4)))
+        diag(c(-self$sigma_est^-2, -self$sigma_est^-2 - 3 * (self$data_x[i] - self$x_hat)^2*self$sigma_est^(-4)))
     },
     get_hessian_bound = function() { # Find hessian bound
         get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
@@ -261,6 +261,83 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
         paste("Hessian Bound is: ", self$hessian_bound) %>% print()
         paste("Lambda & Inv_lambda", self$lambda, self$inv_lambda) %>% print()
         paste("Mean & SD:", mu_est, sigma_est) %>% print()
+
+        super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
+        
+        invisible(self)
+    }
+    )
+)
+
+GLM <- R6::R6Class("GLM", inherit = Data,
+    public = list(
+    dispersion = 1,
+    offset = 0,
+    weights = 1,
+    unit_deviance = function(mu, y) {
+      
+    },
+    v = function(mu) { # Variance Function
+
+    },
+    log_pi_observed_i = function(i) {
+      -0.5*self$dispersion * self$unit_deviance
+    },
+    link = function(mu) { # g(mu) = eta
+
+    },
+    logistic = function(y, x) { # mu = g^-1(eta)
+      
+    },
+    pi_actual = function(x) {
+
+    },
+    pi_observed = function(x) { 
+    },
+    grad_ll_i = function(beta, i) {
+        if (i == 0) return(0)
+        y <- self$data_y[i]
+        x <- self$data_x[i, ]
+
+        mu <- logistic(beta, x)
+
+        (y - mu) * (self$w * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
+    },
+    lap_ll_i = function(beta, i) {
+      if (i == 0) return(0)
+      
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+
+      mu <- logistic(beta, x)
+
+      f1 <- -self$w * x^2 / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) 
+      f2 <- (y - mu) * self$w * x^2 / (self$dispersion * self$v(mu) * self$grad2_link(mu)) 
+
+      f1 + f2
+    },
+    fisher_information = function(i) { # Fisher information
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+
+      mu <- logistic(beta, x)
+
+      - self$w / (self$dispersion * self$v(mu) * (self$grad_link(mu)^2)) * as.matrix(x) %*% t(x)
+    },
+    get_hessian_bound = function() { # Find hessian bound
+        get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
+            (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max()) 
+        }
+        
+        # Upper bound based on n * fisher information
+        hessian_bound <- length(self$data_x) * (eigen(self$fisher_information())$values %>% abs() %>% max())
+        # Bound based on direct computation of n hessians at each datum
+        hessian_bound <- map_dbl(seq_along(self$data_x), ~ get_radial_bound(.x)) %>% max()
+
+        return(hessian_bound)
+    },
+    initialize = function() {
+        
 
         super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
         
