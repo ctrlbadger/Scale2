@@ -79,3 +79,12 @@ test_that("Deviated Cauchy Example", {
     dist_data
   )
 })
+
+test_that("Normal GLM", {
+  list2env(small_normal_n10_m5_s5, rlang::current_env())
+  y <- x_data
+  x <- rep(1, n)
+
+  dist_data <- Normal$new(y, x)
+  
+})

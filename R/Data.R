@@ -272,22 +272,36 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
 GLM <- R6::R6Class("GLM", inherit = Data,
     public = list(
     dispersion = 1,
-    offset = 0,
-    weights = 1,
+    offset = NULL,
+    weights = NULL,
+    data_y = NULL,
+    data_x = NULL,
+    log_pi_observed = function(beta) {
+      sum(map_dbl(0:self$n, log_pi_observed_i(beta, i))) / self$log_pi_observed
+    },
     unit_deviance = function(mu, y) {
       
     },
     v = function(mu) { # Variance Function
 
     },
-    log_pi_observed_i = function(i) {
-      -0.5*self$dispersion * self$unit_deviance
+    log_pi_observed_i = function(beta, i) {
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+
+      eta_i <- self$eta(beta, y, x)
+      mu <- self$logistic(eta_i)
+      
+      -0.5*self$dispersion * self$unit_deviance(mu, y)
     },
     link = function(mu) { # g(mu) = eta
 
     },
-    logistic = function(y, x) { # mu = g^-1(eta)
-      
+    logistic = function(eta) { # mu = g^-1(eta)
+
+    },
+    eta = function(beta, y, x) {
+      y * (x * beta)
     },
     pi_actual = function(x) {
 
@@ -299,7 +313,8 @@ GLM <- R6::R6Class("GLM", inherit = Data,
         y <- self$data_y[i]
         x <- self$data_x[i, ]
 
-        mu <- logistic(beta, x)
+        eta_i <- self$eta(beta, y, x)
+        mu <- self$logistic(eta_i)
 
         (y - mu) * (self$w * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
     },
@@ -336,12 +351,49 @@ GLM <- R6::R6Class("GLM", inherit = Data,
 
         return(hessian_bound)
     },
-    initialize = function() {
+    initialize = function(n, d) {
         
 
-        super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
+        super$initialize(n, d)
         
         invisible(self)
     }
     )
+)
+
+
+Normal <- R6::R6Class("Binomial", inherit = GLM,
+    public = list(
+    dispersion = 1,
+    offset = 0,
+    weights = NULL,
+    unit_deviance = function(mu, y) {
+      (y - mu)^2
+    },
+    v = function(mu) { # Variance Function
+      1
+    },
+    link = function(mu) { # g(mu) = eta
+      mu
+    },
+    logistic = function(eta) { # mu = g^-1(eta)
+      eta
+    },
+    pi_actual = function(x) {
+
+    },
+    pi_observed = function(x) { 
+    },
+    initialize = function(y, x) {
+      self$data_y <- y
+      self$data_x <- as.matrix(x)
+      
+
+      self$n <- dim(self$data_x)[1]
+      self$d <- dim(self$data_x)[2]
+
+      super$initialize(self$n, self$d)
+      invisible(self)
+    }
+  )
 )
