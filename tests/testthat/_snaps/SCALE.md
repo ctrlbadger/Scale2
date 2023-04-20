@@ -227,6 +227,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
@@ -245,6 +246,9 @@
       [1] FALSE
       
       $parameters$subsample
+      [1] FALSE
+      
+      $parameters$print_updates
       [1] FALSE
       
       
@@ -282,6 +286,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
@@ -515,6 +520,7 @@
           x_hat_C: -0.04
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -0.08
           x_scale: function (x) 
@@ -533,6 +539,9 @@
       [1] TRUE
       
       $parameters$subsample
+      [1] FALSE
+      
+      $parameters$print_updates
       [1] FALSE
       
       
@@ -570,6 +579,7 @@
           x_hat_C: -0.04
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -0.08
           x_scale: function (x) 
@@ -803,6 +813,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
@@ -821,6 +832,9 @@
       [1] FALSE
       
       $parameters$subsample
+      [1] FALSE
+      
+      $parameters$print_updates
       [1] FALSE
       
       
@@ -858,6 +872,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
@@ -925,46 +940,19 @@
        [1] 22  7 10 31 39 41  5 18 21  7
       
       $debug_hist[[1]]$phi_l
-                  [,1]
-       [1,] -14910.401
-       [2,]  -2862.390
-       [3,]  -3273.414
-       [4,] -18615.414
-       [5,] -17802.877
-       [6,] -18321.739
-       [7,]  -1252.171
-       [8,] -10372.177
-       [9,] -10627.030
-      [10,]  -1899.233
+       [1] -14910.401  -2862.390  -3273.414 -18615.414 -17802.877 -18321.739
+       [7]  -1252.171 -10372.177 -10627.030  -1899.233
       
       $debug_hist[[1]]$phi_u
-                 [,1]
-       [1,] 14817.069
-       [2,]  2769.058
-       [3,]  3180.083
-       [4,] 18522.082
-       [5,] 17709.545
-       [6,] 18228.407
-       [7,]  1158.839
-       [8,] 10278.845
-       [9,] 10533.698
-      [10,]  1805.901
+       [1] 14817.069  2769.058  3180.083 18522.082 17709.545 18228.407  1158.839
+       [8] 10278.845 10533.698  1805.901
       
       $debug_hist[[1]]$iter_counter
        [1] 22  7 10 31 39 41  5 18 21  7
       
       $debug_hist[[1]]$incr_log_weight
-                   [,1]
-       [1,]  -0.3969877
-       [2,]  -2.0016116
-       [3,]  -2.8826304
-       [4,]  -2.9287962
-       [5,]  -9.3808920
-       [6,] -10.1999352
-       [7,]  -1.5717603
-       [8,]  -1.7906414
-       [9,]  -3.9805977
-      [10,]  -2.0526340
+       [1]  -0.3969877  -2.0016116  -2.8826304  -2.9287962  -9.3808920 -10.1999352
+       [7]  -1.5717603  -1.7906414  -3.9805977  -2.0526340
       
       $debug_hist[[1]]$norm_weight
        [1] 4.673481e-01 9.392066e-02 3.891702e-02 3.716122e-02 5.861117e-05
@@ -1041,46 +1029,19 @@
        [1] 51  9 15 78 79 83 10 45 54 10
       
       $debug_hist[[2]]$phi_l
-                  [,1]
-       [1,] -14910.401
-       [2,]  -2862.390
-       [3,]  -3478.325
-       [4,] -18615.414
-       [5,] -17802.877
-       [6,] -16929.941
-       [7,]  -1252.171
-       [8,] -10372.177
-       [9,] -10627.030
-      [10,]  -1899.233
+       [1] -14910.401  -2862.390  -3478.325 -18615.414 -17802.877 -16929.941
+       [7]  -1252.171 -10372.177 -10627.030  -1899.233
       
       $debug_hist[[2]]$phi_u
-                 [,1]
-       [1,] 14817.069
-       [2,]  2769.058
-       [3,]  3384.994
-       [4,] 18522.082
-       [5,] 17709.545
-       [6,] 16836.610
-       [7,]  1158.839
-       [8,] 10278.845
-       [9,] 10533.698
-      [10,]  1805.901
+       [1] 14817.069  2769.058  3384.994 18522.082 17709.545 16836.610  1158.839
+       [8] 10278.845 10533.698  1805.901
       
       $debug_hist[[2]]$iter_counter
        [1] 29  2  5 47 40 42  5 27 33  3
       
       $debug_hist[[2]]$incr_log_weight
-                   [,1]
-       [1,]  -5.2657504
-       [2,]   1.4727897
-       [3,]   0.5177721
-       [4,] -14.0905220
-       [5,] -10.0238926
-       [6,]  -9.7995858
-       [7,]  -2.2160492
-       [8,]  -8.4103559
-       [9,] -12.3282893
-      [10,]  -0.1839197
+       [1]  -5.2657504   1.4727897   0.5177721 -14.0905220 -10.0238926  -9.7995858
+       [7]  -2.2160492  -8.4103559 -12.3282893  -0.1839197
       
       $debug_hist[[2]]$norm_weight
        [1] 4.254854e-03 7.219650e-01 1.151160e-01 4.974903e-08 4.579201e-09
@@ -1152,6 +1113,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 1.03510636922256
           sigma_true: 1
           total_grad_ll: function (x) 
@@ -1160,6 +1122,7 @@
           x_hat_C: -46.665942602656
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 4.44089209850063e-16
           x_hat_total_grad_ll: -2.22044604925031e-16
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
@@ -1179,6 +1142,9 @@
       
       $parameters$subsample
       [1] TRUE
+      
+      $parameters$print_updates
+      [1] FALSE
       
       
       $data
@@ -1214,6 +1180,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 1.03510636922256
           sigma_true: 1
           total_grad_ll: function (x) 
@@ -1222,6 +1189,7 @@
           x_hat_C: -46.665942602656
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 4.44089209850063e-16
           x_hat_total_grad_ll: -2.22044604925031e-16
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
@@ -1289,46 +1257,19 @@
        [1] 34  8  8 34 39 34  3 27 27  6
       
       $debug_hist[[1]]$phi_l
-                  [,1]
-       [1,] -15879.298
-       [2,]  -2862.390
-       [3,]  -3680.604
-       [4,] -17560.227
-       [5,] -16772.572
-       [6,] -16261.645
-       [7,]  -1415.929
-       [8,] -10372.177
-       [9,] -11436.842
-      [10,]  -1899.233
+       [1] -15879.298  -2862.390  -3680.604 -17560.227 -16772.572 -16261.645
+       [7]  -1415.929 -10372.177 -11436.842  -1899.233
       
       $debug_hist[[1]]$phi_u
-                 [,1]
-       [1,] 15785.966
-       [2,]  2769.058
-       [3,]  3587.272
-       [4,] 17466.895
-       [5,] 16679.240
-       [6,] 16168.313
-       [7,]  1322.597
-       [8,] 10278.845
-       [9,] 11343.510
-      [10,]  1805.901
+       [1] 15785.966  2769.058  3587.272 17466.895 16679.240 16168.313  1322.597
+       [8] 10278.845 11343.510  1805.901
       
       $debug_hist[[1]]$iter_counter
        [1] 34  8  8 34 39 34  3 27 27  6
       
       $debug_hist[[1]]$incr_log_weight
-                   [,1]
-       [1,]  -7.6925240
-       [2,]  -2.6966498
-       [3,]  -0.3594842
-       [4,]  -6.2314860
-       [5,] -10.3597650
-       [6,]  -4.7545048
-       [7,]   0.5574446
-       [8,]  -7.9855176
-       [9,]  -6.9210610
-      [10,]  -1.4494793
+       [1]  -7.6925240  -2.6966498  -0.3594842  -6.2314860 -10.3597650  -4.7545048
+       [7]   0.5574446  -7.9855176  -6.9210610  -1.4494793
       
       $debug_hist[[1]]$norm_weight
        [1] 1.653734e-04 2.444253e-02 2.530255e-01 7.128306e-04 1.148411e-05
@@ -1405,46 +1346,19 @@
        [1] 62 16 19 68 78 81  7 43 60 17
       
       $debug_hist[[2]]$phi_l
-                  [,1]
-       [1,] -16592.671
-       [2,]  -2862.390
-       [3,]  -3651.919
-       [4,] -17560.227
-       [5,] -16772.572
-       [6,] -16261.645
-       [7,]  -1415.929
-       [8,] -10842.069
-       [9,] -11896.038
-      [10,]  -1870.163
+       [1] -16592.671  -2862.390  -3651.919 -17560.227 -16772.572 -16261.645
+       [7]  -1415.929 -10842.069 -11896.038  -1870.163
       
       $debug_hist[[2]]$phi_u
-                 [,1]
-       [1,] 16499.339
-       [2,]  2769.058
-       [3,]  3558.587
-       [4,] 17466.895
-       [5,] 16679.240
-       [6,] 16168.313
-       [7,]  1322.597
-       [8,] 10748.737
-       [9,] 11802.706
-      [10,]  1776.831
+       [1] 16499.339  2769.058  3558.587 17466.895 16679.240 16168.313  1322.597
+       [8] 10748.737 11802.706  1776.831
       
       $debug_hist[[2]]$iter_counter
        [1] 28  8 11 34 39 47  4 16 33 11
       
       $debug_hist[[2]]$incr_log_weight
-                   [,1]
-       [1,]  -2.3570133
-       [2,]  -2.6949973
-       [3,]  -2.3095669
-       [4,]  -6.0989686
-       [5,] -10.3594569
-       [6,] -16.4414907
-       [7,]  -1.3596401
-       [8,]   0.1583621
-       [9,]  -9.8079839
-      [10,]  -4.3139609
+       [1]  -2.3570133  -2.6949973  -2.3095669  -6.0989686 -10.3594569 -16.4414907
+       [7]  -1.3596401   0.1583621  -9.8079839  -4.3139609
       
       $debug_hist[[2]]$norm_weight
        [1] 8.217100e-05 8.661928e-03 1.318327e-01 8.397090e-06 1.909561e-09
@@ -1516,6 +1430,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 1.03510636922256
           sigma_true: 1
           total_grad_ll: function (x) 
@@ -1524,6 +1439,7 @@
           x_hat_C: -46.665942602656
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 4.44089209850063e-16
           x_hat_total_grad_ll: -2.22044604925031e-16
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
@@ -1542,6 +1458,9 @@
       [1] TRUE
       
       $parameters$subsample
+      [1] FALSE
+      
+      $parameters$print_updates
       [1] FALSE
       
       
@@ -1578,6 +1497,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 1.03510636922256
           sigma_true: 1
           total_grad_ll: function (x) 
@@ -1586,7 +1506,339 @@
           x_hat_C: -46.665942602656
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 4.44089209850063e-16
           x_hat_total_grad_ll: -2.22044604925031e-16
+          x_hat_total_lap_ll: -93.331885205312
+          x_scale: function (x) 
+          x_unscale: function (x) 
+      
+
+# GLM Normal Rescale Sampled
+
+    Code
+      SCALE_info
+    Output
+      $debug_hist
+      $debug_hist[[1]]
+      $debug_hist[[1]]$d
+       [1] 1 1 1 1 1 1 1 1 1 1
+      
+      $debug_hist[[1]]$path_curr
+       [1] -0.89809773 -0.32338180  0.40092710 -0.95266042  0.99523902 -1.01371762
+       [7] -0.05454654  0.73816508  0.69588859 -0.22648665
+      
+      $debug_hist[[1]]$path_u
+       [1] -0.86576296 -0.28317762  0.41288188 -0.91828610  1.02051314 -0.97282749
+       [7] -0.01738573  0.76365362  0.71063083 -0.21456291
+      
+      $debug_hist[[1]]$path_l
+       [1] -0.92900851 -0.34642317  0.34963633 -0.98153166  0.95726758 -1.03607304
+       [7] -0.08063129  0.70040807  0.64738528 -0.27780847
+      
+      $debug_hist[[1]]$path_tau
+       [1] -0.92900851 -0.34642317  0.41288188 -0.98153166  0.95726758 -0.97282749
+       [7] -0.08063129  0.76365362  0.71063083 -0.21456291
+      
+      $debug_hist[[1]]$minI
+       [1]  1  1 -1  1  1 -1  1 -1 -1 -1
+      
+      $debug_hist[[1]]$theta
+       [1] 0.03162278 0.03162278 0.03162278 0.03162278 0.03162278 0.03162278
+       [7] 0.03162278 0.03162278 0.03162278 0.03162278
+      
+      $debug_hist[[1]]$time_tau
+       [1] 0.001178491 0.001833890 0.001454049 0.002188860 0.003257305 0.001927974
+       [7] 0.001933935 0.001869441 0.001083767 0.001611360
+      
+      $debug_hist[[1]]$bdry
+       [1] -0.86576296 -0.28317762  0.34963633 -0.91828610  1.02051314 -1.03607304
+       [7] -0.01738573  0.70040807  0.64738528 -0.27780847
+      
+      $debug_hist[[1]]$tau_order
+       [1] 1 1 1 1 1 1 1 1 1 1
+      
+      $debug_hist[[1]]$log_weight
+       [1] -2.134634 -2.170006 -2.167604 -3.447148 -2.127904 -2.126132 -2.175024
+       [8] -3.248478 -2.150037 -2.172045
+      
+      $debug_hist[[1]]$time_curr
+       [1] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+      
+      $debug_hist[[1]]$time_next
+       [1] 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+      
+      $debug_hist[[1]]$time_next_is_tau
+       [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+      
+      $debug_hist[[1]]$iter_count
+       [1] 0 0 0 1 1 1 3 2 2 0
+      
+      $debug_hist[[1]]$phi_l
+       [1] -134.88344  -99.51145 -101.91366 -139.66038 -143.37552 -144.89885
+       [7]  -94.10804 -121.55958 -117.83835  -97.47250
+      
+      $debug_hist[[1]]$phi_u
+       [1] 41.5515541  6.1795600  8.5817700 46.3284928 50.0436306 51.5669697
+       [7]  0.7761518 28.2276924 24.5064610  4.1406137
+      
+      $debug_hist[[1]]$iter_counter
+       [1] 0 0 0 1 1 1 3 2 2 0
+      
+      $debug_hist[[1]]$incr_log_weight
+       [1]  0.13488344  0.09951145  0.10191366 -1.17762975  0.14161415  0.14338567
+       [7]  0.09449425 -0.97896054  0.11948111  0.09747250
+      
+      $debug_hist[[1]]$norm_weight
+       [1] 0.11828783 0.11417689 0.11445150 0.03183632 0.11908668 0.11929783
+       [7] 0.11360548 0.03883325 0.11647988 0.11394433
+      
+      $debug_hist[[1]]$ess
+      [1] 0.9048154
+      
+      $debug_hist[[1]]$resample
+      [1] FALSE
+      
+      $debug_hist[[1]]$mesh_idx
+      [1] 1
+      
+      $debug_hist[[1]]$mesh_time
+      [1] 0.001
+      
+      $debug_hist[[1]]$id
+       [1]  1  2  3  4  5  6  7  8  9 10
+      
+      
+      $debug_hist[[2]]
+      $debug_hist[[2]]$d
+       [1] 1 1 1 1 1 1 1 1 1 1
+      
+      $debug_hist[[2]]$path_curr
+       [1] -0.887985672 -0.335857113  0.396342779 -0.984321996  0.967046318
+       [6] -1.016292965 -0.007352234  0.707286711  0.706246248 -0.260958274
+      
+      $debug_hist[[2]]$path_u
+       [1] -0.866474951 -0.291759028  0.432549881 -0.952660418  0.995239023
+       [6] -0.982094848  0.008699012  0.738165080  0.727511364 -0.226486648
+      
+      $debug_hist[[2]]$path_l
+       [1] -0.92972050 -0.35500458  0.36930433 -1.01590597  0.93199347 -1.04534040
+       [7] -0.05454654  0.67491953  0.66426581 -0.28973220
+      
+      $debug_hist[[2]]$path_tau
+       [1] -0.92972050 -0.35500458  0.36930433 -0.95266042  0.93199347 -1.04534040
+       [7] -0.05454654  0.67491953  0.66426581 -0.22648665
+      
+      $debug_hist[[2]]$minI
+       [1]  1  1  1 -1  1  1  1  1  1 -1
+      
+      $debug_hist[[2]]$theta
+       [1] 0.03162278 0.03162278 0.03162278 0.03162278 0.03162278 0.03162278
+       [7] 0.03162278 0.03162278 0.03162278 0.03162278
+      
+      $debug_hist[[2]]$time_tau
+       [1] 0.003386931 0.002392589 0.002602654 0.002654081 0.003356837 0.002563734
+       [7] 0.003034295 0.006357103 0.002651126 0.003141353
+      
+      $debug_hist[[2]]$bdry
+       [1] -0.866474951 -0.291759028  0.432549881 -1.015905971  0.995239023
+       [6] -0.982094848  0.008699012  0.738165080  0.727511364 -0.289732202
+      
+      $debug_hist[[2]]$tau_order
+       [1] 1 1 1 1 1 1 1 1 1 1
+      
+      $debug_hist[[2]]$log_weight
+       [1] -2.051264 -2.122008 -2.966479 -3.358236 -2.036998 -2.032746 -2.132564
+       [8] -3.178543 -2.083711 -2.125996
+      
+      $debug_hist[[2]]$time_curr
+       [1] 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002
+      
+      $debug_hist[[2]]$time_next
+       [1] 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002
+      
+      $debug_hist[[2]]$time_next_is_tau
+       [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+      
+      $debug_hist[[2]]$iter_count
+       [1] 0 0 3 2 2 1 4 3 2 1
+      
+      $debug_hist[[2]]$phi_l
+       [1] -134.88344  -99.51145 -102.70521 -142.92889 -140.95027 -144.89885
+       [7]  -93.94018 -119.73734 -117.83835  -97.79464
+      
+      $debug_hist[[2]]$phi_u
+       [1] 41.5515541  6.1795600  9.3733258 49.5970047 47.6183841 51.5669697
+       [7]  0.6082966 26.4054536 24.5064610  4.4627592
+      
+      $debug_hist[[2]]$iter_counter
+       [1] 0 0 3 1 1 0 1 1 0 1
+      
+      $debug_hist[[2]]$incr_log_weight
+       [1]  0.13488344  0.09951145 -0.74736197  0.14042410  0.14241803  0.14489885
+       [7]  0.09397256  0.12144842  0.11783835  0.09756224
+      
+      $debug_hist[[2]]$norm_weight
+       [1] 0.12857234 0.11979090 0.05148428 0.03479658 0.13041961 0.13097538
+       [7] 0.11853303 0.04164631 0.12446746 0.11931411
+      
+      $debug_hist[[2]]$ess
+      [1] 0.8739848
+      
+      $debug_hist[[2]]$resample
+      [1] FALSE
+      
+      $debug_hist[[2]]$mesh_idx
+      [1] 2
+      
+      $debug_hist[[2]]$mesh_time
+      [1] 0.002
+      
+      $debug_hist[[2]]$id
+       [1]  1  2  3  4  5  6  7  8  9 10
+      
+      
+      
+      $parameters
+      $parameters$num_particles
+      [1] 10
+      
+      $parameters$d
+      [1] 1
+      
+      $parameters$theta
+      [1] 0.03162278
+      
+      $parameters$num_meshes
+      [1] 2
+      
+      $parameters$kill_time
+      [1] 0.002
+      
+      $parameters$data
+      <Binomial>
+        Inherits from: <GLM>
+        Public:
+          alpha: function (x) 
+          alpha_subsample: function (x, i) 
+          clone: function (deep = FALSE) 
+          d: 1
+          data_x: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
+          data_y: -3.63230970218853 -2.06299626348368 -2.7054468616044 -2. ...
+          dispersion: 1.07144519560512
+          div_alpha: function (x) 
+          div_alpha_subsample: function (x, i) 
+          eta: function (beta, x) 
+          fisher_information: function (i) 
+          get_dispersion_param: function () 
+          get_hessian_bound: function () 
+          get_preconditioning_matrix: function () 
+          grad2_link: function (mu) 
+          grad_link: function (mu) 
+          grad_ll: function (beta, i) 
+          hessian_bound: 0.933318852053121
+          initialize: function (y, x) 
+          inv_lambda: 9.66084288275676
+          lambda: 0.103510636922256
+          lap_ll: function (beta, i) 
+          link: function (mu) 
+          log_pi_observed: function (beta) 
+          log_pi_observed_i: function (beta, i) 
+          logistic: function (eta) 
+          n: 100
+          offset: 0
+          phi: function (x) 
+          phi_control_var: function (x) 
+          phi_estimator: function (x, i, j) 
+          phi_estimator_bounds: function (maximal_distance) 
+          pi_actual: function (x) 
+          pi_observed: function (x) 
+          precalc_control_var: function (x_hat = NULL) 
+          prior_weights: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
+          total_grad_ll: function (x) 
+          total_lap_ll: function (x) 
+          unit_deviance: function (mu, y) 
+          v: function (mu) 
+          weights: NULL
+          x_hat: -1.9839822340074
+          x_hat_C: -46.665942602656
+          x_hat_grad_ll_i: list
+          x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 1.69086966650411e-13
+          x_hat_total_grad_ll: 8.45434833252057e-14
+          x_hat_total_lap_ll: -93.331885205312
+          x_scale: function (x) 
+          x_unscale: function (x) 
+      
+      $parameters$ess_thresh
+      [1] 0
+      
+      $parameters$parallel
+      [1] FALSE
+      
+      $parameters$resample_every
+      [1] Inf
+      
+      $parameters$rescale
+      [1] TRUE
+      
+      $parameters$subsample
+      [1] TRUE
+      
+      $parameters$print_updates
+      [1] FALSE
+      
+      
+      $data
+      <Binomial>
+        Inherits from: <GLM>
+        Public:
+          alpha: function (x) 
+          alpha_subsample: function (x, i) 
+          clone: function (deep = FALSE) 
+          d: 1
+          data_x: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
+          data_y: -3.63230970218853 -2.06299626348368 -2.7054468616044 -2. ...
+          dispersion: 1.07144519560512
+          div_alpha: function (x) 
+          div_alpha_subsample: function (x, i) 
+          eta: function (beta, x) 
+          fisher_information: function (i) 
+          get_dispersion_param: function () 
+          get_hessian_bound: function () 
+          get_preconditioning_matrix: function () 
+          grad2_link: function (mu) 
+          grad_link: function (mu) 
+          grad_ll: function (beta, i) 
+          hessian_bound: 0.933318852053121
+          initialize: function (y, x) 
+          inv_lambda: 9.66084288275676
+          lambda: 0.103510636922256
+          lap_ll: function (beta, i) 
+          link: function (mu) 
+          log_pi_observed: function (beta) 
+          log_pi_observed_i: function (beta, i) 
+          logistic: function (eta) 
+          n: 100
+          offset: 0
+          phi: function (x) 
+          phi_control_var: function (x) 
+          phi_estimator: function (x, i, j) 
+          phi_estimator_bounds: function (maximal_distance) 
+          pi_actual: function (x) 
+          pi_observed: function (x) 
+          precalc_control_var: function (x_hat = NULL) 
+          prior_weights: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
+          total_grad_ll: function (x) 
+          total_lap_ll: function (x) 
+          unit_deviance: function (mu, y) 
+          v: function (mu) 
+          weights: NULL
+          x_hat: -1.9839822340074
+          x_hat_C: -46.665942602656
+          x_hat_grad_ll_i: list
+          x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 1.69086966650411e-13
+          x_hat_total_grad_ll: 8.45434833252057e-14
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
           x_unscale: function (x) 

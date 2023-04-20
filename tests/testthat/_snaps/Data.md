@@ -35,6 +35,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 3.50230906382132
           sigma_true: 5
           total_grad_ll: function (x) 
@@ -43,6 +44,7 @@
           x_hat_C: -0.407625240633715
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 2.77555756156289e-16
           x_hat_total_grad_ll: -1.38777878078145e-16
           x_hat_total_lap_ll: -0.815250481267431
           x_scale: function (x) 
@@ -85,6 +87,7 @@
           pi_actual: function (x) 
           pi_observed: function (x) 
           precalc_control_var: function (x_hat = NULL) 
+          print_debug: function () 
           sigma_est: 1.03510636922256
           sigma_true: 1
           total_grad_ll: function (x) 
@@ -93,6 +96,7 @@
           x_hat_C: -46.665942602656
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 4.44089209850063e-16
           x_hat_total_grad_ll: -2.22044604925031e-16
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
@@ -136,6 +140,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
@@ -179,6 +184,7 @@
           x_hat_C: -1
           x_hat_grad_ll_i: list
           x_hat_lap_ll_i: list
+          x_hat_norm_2grad_log: 0
           x_hat_total_grad_ll: 0
           x_hat_total_lap_ll: -2
           x_scale: function (x) 

@@ -15,12 +15,12 @@ create_normal_data <- function() {
   dist_data <- MeanNormalData$new(x_data, mu_true = mu, sigma_true = sigma)
 
   small_normal_n10_m5_s5 <- list(
-    n = n, mu = mu, sigma = sigma, x_data = x_data, dist_data
+    n = n, mu = mu, sigma = sigma, x_data = x_data
   )
 
-  use_data(small_normal_n10_m5_s5, overwrite = TRUE)
+  use_data(small_normal_n10_m5_s5, overwrite = FALSE)
 
-  ## SMALL
+  ## LARGE
   set.seed(150)
   sigma <- 1
   mu <- -2
@@ -31,7 +31,23 @@ create_normal_data <- function() {
     n = n, mu = mu, sigma = sigma, x_data = x_data
   )
 
-  use_data(large_normal_n100_mneg2_s1, overwrite = TRUE)
+  use_data(large_normal_n100_mneg2_s1, overwrite = FALSE)
+
+  set.seed(150)
+  beta_true <- c(5, -2)
+  n <- 20
+  d <- 2
+  x_1 <- rep(1, n)
+  x_2 <- rnorm(n, mean=0, sd=1)
+  y <- beta_true[1]*x_1 + beta_true[2] * x_2
+  x <- matrix(c(x_1, x_2), ncol = 2)
+
+  lm1 <- lm(y ~ x - 1)
+  bivariate_normal_n20_b5neg2 <- list(
+    n = n, d = d, x = x, y = y, beta_true = beta_true
+  )
+  use_data(bivariate_normal_n20_b5neg2, overwrite = FALSE)
+
 }
 
 test_SCALE_mean_normal <- function() {

@@ -3,15 +3,16 @@ Data <- R6::R6Class("Data",
                 public = list(
                   n = 1L, # Data Size
                   d = 1L, # Dimension
-                  lambda = matrix(), # Preconditioning Matrix
-                  inv_lambda = matrix(), # Inverse of Preconditioning Matrix
-                  hessian_bound = 1, # Hessian Bound used in obtaining phi lower and upper bounds
-                  x_hat = 0, # Centering Control Variate
+                  lambda = NULL, # Preconditioning Matrix
+                  inv_lambda = NULL, # Inverse of Preconditioning Matrix
+                  hessian_bound = NULL, # Hessian Bound used in obtaining phi lower and upper bounds
+                  x_hat = NULL, # Centering Control Variate
                   x_hat_total_grad_ll = 0,
                   x_hat_total_lap_ll = 0,
                   x_hat_C = 0,
                   x_hat_grad_ll_i = 0,
                   x_hat_lap_ll_i = 0,
+                  x_hat_norm_2grad_log = 0,
                   initialize = function(n, d, x_hat = NULL, hessian_bound = NULL) {
                     self$n <- n
                     self$d <- d
@@ -20,9 +21,8 @@ Data <- R6::R6Class("Data",
                     if (is.numeric(x_hat) && is.numeric(hessian_bound)) {
                       self$x_hat <- x_hat
                       self$hessian_bound <- hessian_bound
-
-                      self$precalc_control_var(self$x_hat)
                     }
+                    self$precalc_control_var(self$x_hat)
                   },
                   grad_ll = function(x, idx) { }, # Grad log likelihood of posterior
                   lap_ll = function(x, idx) { }, # Laplacian log likelihood of posterior
@@ -81,6 +81,8 @@ Data <- R6::R6Class("Data",
                     self$x_hat_total_grad_ll <- self$total_grad_ll(self$x_hat)
                     self$x_hat_total_lap_ll <- self$total_lap_ll(self$x_hat)
 
+                    self$x_hat_norm_2grad_log <- sum((2*self$x_hat_total_grad_ll)^2)^(1/2)
+
                     sqrd_norm_grad_ll <- sum(self$x_hat_total_grad_ll^2)
 
                     ## lap(log(pi(x))) equiv to sum of second derivatives of log(pi(x))
@@ -92,7 +94,7 @@ Data <- R6::R6Class("Data",
                   },
                   phi_estimator_bounds = function(maximal_distance) { # Calculate phi bounds from equation 22
                     absolute_bound <- (self$n + 1) * self$hessian_bound *
-                      t(maximal_distance) %*% as.matrix(2 * abs(self$x_hat_total_grad_ll) + self$hessian_bound * (self$n + 1) * maximal_distance) +
+                      maximal_distance * (self$x_hat_norm_2grad_log + self$hessian_bound * (self$n + 1) * maximal_distance) +
                       self$hessian_bound * self$d * (self$n + 1)
 
 
@@ -120,7 +122,7 @@ CauchyData <- R6::R6Class("CauchyData", inherit = Data,
     pi = function(x) {
         exp(pi_ll(x))
     },
-    pi_ll = function(x) { 
+    pi_ll = function(x) {
         -log(pi * self$gamma) - log(1 + self$cauchy_scale(x, self$mu, self$gamma)^2)
     },
     grad_ll = function(x, i) { # Grad ll for cauchy
@@ -140,43 +142,41 @@ CauchyData <- R6::R6Class("CauchyData", inherit = Data,
 
         self$lambda <- 1 / (4 * self$gamma^2)
         self$inv_lambda <- solve(self$lambda)
-        
+
         super$initialize(n = 1, d = 1, x_hat = self$mu, hessian_bound = 1 / (4 * gamma^2))
         invisible(self)
     },
     cauchy_scale = function(x, mu, gamma)  { # Scaling helper function
         (x - mu) / gamma
     },
-    phi_bounds_exact = function(x.l, x.u) { # Exact Phi Bounds 
+    phi_bounds_exact = function(x.l, x.u) { # Exact Phi Bounds
         b1 <- self$phi(x.l)
         b2 <- self$phi(x.u)
-        
+
         phiU <- max(c(b1, b2))
         phiL <- min(c(b1, b2))
-        
+
         if ((x.l < self$mu) && (self$mu < x.u)) {
             phiL <- self$phi(self$mu)
         }
-        
-        phi.max <- -sqrt( 5/3)*self$gamma + self$mu 
-        
+
+        phi.max <- -sqrt( 5/3)*self$gamma + self$mu
+
         if ((x.l < phi.max) && (phi.max < x.u)) {
             phiU <- self$phi(phi.max)
         }
-        
-        phi.max <- phi.max <- sqrt(5/3)*self$gamma + self$mu 
+
+        phi.max <- phi.max <- sqrt(5/3)*self$gamma + self$mu
         if ((x.l < phi.max) && (phi.max < x.u)) {
             phiU <- self$phi(phi.max)
         }
-        
+
         return(list(phi_u = phiU, phi_l = phiL, intensity = phiU - phiL))
     }
     )
 )
 
-
-
-# Only mu normal data example 
+# Only mu normal data example
 MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
     public = list(
     data_x = 0, # Vector of means for each normal datum i
@@ -207,11 +207,11 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
     },
     lap_ll = function(x, i) {
         if (i == 0) return(0)
-        
+
         mu_comp <- - self$sigma_est^-2
         sigma_comp <- -self$sigma_est^-2 - 3 * (self$data_x[i] - self$sigma_est)^2 * x[2]^-4
 
-        return(c(mu_comp)) 
+        return(c(mu_comp))
     },
     fisher_information = function() { # Fisher information
         diag(c(self$sigma_est^-2, 4 * self$sigma_est^-2))
@@ -221,15 +221,20 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
     },
     get_hessian_bound = function() { # Find hessian bound
         get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
-            (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max()) 
+            (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max())
         }
-        
+
         # Upper bound based on n * fisher information
         hessian_bound <- length(self$data_x) * (eigen(self$fisher_information())$values %>% abs() %>% max())
         # Bound based on direct computation of n hessians at each datum
         hessian_bound <- map_dbl(seq_along(self$data_x), ~ get_radial_bound(.x)) %>% max()
 
         return(hessian_bound)
+    },
+    print_debug = function() {
+      paste("Hessian Bound is: ", self$hessian_bound) %>% print()
+      paste("Lambda & Inv_lambda", self$lambda, self$inv_lambda) %>% print()
+      paste("Mean & SD:", mu_est, sigma_est) %>% print()
     },
     initialize = function(data_x, mu_true = NULL, sigma_true = NULL) {
         self$data_x <- data_x
@@ -239,161 +244,28 @@ MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
         sigma_est <- sd(data_x)
 
         self$x_hat <- mu_est
-        
+
         self$mu_true <- mu_true
         self$sigma_true <- sigma_true
-        
-        
+
+
         self$n <- length(data_x)
         self$sigma_est <- sigma_est
-        
+
         self$inv_lambda <- as.matrix(c(sqrt(self$n * self$sigma_est^-2)))
         self$lambda <- solve(self$inv_lambda)
-        
 
-        
+
+
         # Normalising Constants
         self$constant_pi_observed <- integrate(function(x) {map_dbl(x, ~ self$pi_observed(.x))}, lower = -Inf, upper = Inf)$value
         self$constant_pi_actual <- integrate(function(x) {map_dbl(x, ~ self$pi_actual(.x))}, lower = -Inf, upper = Inf)$value
-                
+
         self$hessian_bound <- self$get_hessian_bound()
-        
-        paste("Hessian Bound is: ", self$hessian_bound) %>% print()
-        paste("Lambda & Inv_lambda", self$lambda, self$inv_lambda) %>% print()
-        paste("Mean & SD:", mu_est, sigma_est) %>% print()
 
         super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
-        
+
         invisible(self)
     }
     )
-)
-
-GLM <- R6::R6Class("GLM", inherit = Data,
-    public = list(
-    dispersion = 1,
-    offset = NULL,
-    weights = NULL,
-    data_y = NULL,
-    data_x = NULL,
-    log_pi_observed = function(beta) {
-      sum(map_dbl(0:self$n, log_pi_observed_i(beta, i))) / self$log_pi_observed
-    },
-    unit_deviance = function(mu, y) {
-      
-    },
-    v = function(mu) { # Variance Function
-
-    },
-    log_pi_observed_i = function(beta, i) {
-      y <- self$data_y[i]
-      x <- self$data_x[i, ]
-
-      eta_i <- self$eta(beta, y, x)
-      mu <- self$logistic(eta_i)
-      
-      -0.5*self$dispersion * self$unit_deviance(mu, y)
-    },
-    link = function(mu) { # g(mu) = eta
-
-    },
-    logistic = function(eta) { # mu = g^-1(eta)
-
-    },
-    eta = function(beta, y, x) {
-      y * (x * beta)
-    },
-    pi_actual = function(x) {
-
-    },
-    pi_observed = function(x) { 
-    },
-    grad_ll_i = function(beta, i) {
-        if (i == 0) return(0)
-        y <- self$data_y[i]
-        x <- self$data_x[i, ]
-
-        eta_i <- self$eta(beta, y, x)
-        mu <- self$logistic(eta_i)
-
-        (y - mu) * (self$w * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
-    },
-    lap_ll_i = function(beta, i) {
-      if (i == 0) return(0)
-      
-      y <- self$data_y[i]
-      x <- self$data_x[i, ]
-
-      mu <- logistic(beta, x)
-
-      f1 <- -self$w * x^2 / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) 
-      f2 <- (y - mu) * self$w * x^2 / (self$dispersion * self$v(mu) * self$grad2_link(mu)) 
-
-      f1 + f2
-    },
-    fisher_information = function(i) { # Fisher information
-      y <- self$data_y[i]
-      x <- self$data_x[i, ]
-
-      mu <- logistic(beta, x)
-
-      - self$w / (self$dispersion * self$v(mu) * (self$grad_link(mu)^2)) * as.matrix(x) %*% t(x)
-    },
-    get_hessian_bound = function() { # Find hessian bound
-        get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
-            (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max()) 
-        }
-        
-        # Upper bound based on n * fisher information
-        hessian_bound <- length(self$data_x) * (eigen(self$fisher_information())$values %>% abs() %>% max())
-        # Bound based on direct computation of n hessians at each datum
-        hessian_bound <- map_dbl(seq_along(self$data_x), ~ get_radial_bound(.x)) %>% max()
-
-        return(hessian_bound)
-    },
-    initialize = function(n, d) {
-        
-
-        super$initialize(n, d)
-        
-        invisible(self)
-    }
-    )
-)
-
-
-Normal <- R6::R6Class("Binomial", inherit = GLM,
-    public = list(
-    dispersion = 1,
-    offset = 0,
-    weights = NULL,
-    unit_deviance = function(mu, y) {
-      (y - mu)^2
-    },
-    v = function(mu) { # Variance Function
-      1
-    },
-    link = function(mu) { # g(mu) = eta
-      mu
-    },
-    logistic = function(eta) { # mu = g^-1(eta)
-      eta
-    },
-    pi_actual = function(x) {
-
-    },
-    pi_observed = function(x) { 
-    },
-    initialize = function(y, x) {
-      self$data_y <- y
-      self$data_x <- as.matrix(x)
-      
-
-      self$n <- dim(self$data_x)[1]
-      self$d <- dim(self$data_x)[2]
-
-      super$initialize(self$n, self$d)
-      invisible(self)
-    }
-  )
 )

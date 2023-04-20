@@ -59,24 +59,18 @@ resample_particles <- function(num_particles, particles, incr_log_weight, ess_th
     }
     # walk(particles, ~ list_assign(.x, "log_weight" = lw_temp)) # New
 
-    current_paths <- map_dbl(particles, "path_curr")
+    current_paths <- map(particles, "path_curr")
 
     debug_msg <- debug_msg %>%
-      glue("Unique: {length(unique(sample_idx)) / num_particles}\n",
-           "Mean {mean(current_paths * norm_weight)} SD {sd(current_paths)}")
+      glue("Unique: {length(unique(sample_idx)) / num_particles}\n")
 
   } else {
     # Update log weights of particles
     for (i in seq_along(particles)) {
       particles[[i]]$log_weight <- norm_log_weight[i]
     }
-    print("")
-    current_paths <- map_dbl(particles, "path_curr")
-    debug_msg <- debug_msg %>%
-      glue("Mean {mean(current_paths * norm_weight)} SD {sd(current_paths)}")
+    current_paths <- map(particles, "path_curr")
   }
   id <- map_int(1:num_particles, ~ pluck(particles, .x, attr_getter("id")))
-  print("")
-  print(debug_msg)
-  list(particles = particles, ess = ess, norm_weight = norm_weight, resample = resample, id=id)
+  list(particles = particles, ess = ess, norm_weight = norm_weight, resample = resample, id=id, print_msg = debug_msg)
 }

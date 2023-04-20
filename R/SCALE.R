@@ -35,7 +35,9 @@ particle <- function(d, path_curr, theta, log_weight = NULL, id = NULL) {
 
   # Initialise current path and set upper and lower bounds of hypercube
   p$path_curr <- path_curr
-  p$theta <- theta
+
+  p$theta <- rep(theta[1], d)
+
 
   # Initialise log weight
   if (!is.null(log_weight))  p$log_weight <- log_weight
@@ -145,13 +147,13 @@ update_trajectory <- function(p) {
 
   dimensions_to_update <- 1:p$d
 
-  if (p$time_next_is_tau) {
-    idx <- p$tau_order[1]
-    path_proposal[idx] <- p$path_tau[idx]
-
-    # Everything but tau
-    dimensions_to_update <- dimensions_to_update[-idx]
-  }
+  # if (p$time_next_is_tau) {
+  #   idx <- p$tau_order[1]
+  #   path_proposal[idx] <- p$path_tau[idx]
+  #
+  #   # Everything but tau
+  #   dimensions_to_update <- dimensions_to_update[-idx]
+  # }
 
 
   for (i in seq_along(dimensions_to_update)) {
@@ -176,16 +178,12 @@ particle_snapshot <- function(particles, ...) {
   purrr::list_transpose(particles) |>  append(values = list(...))
 }
 
-SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thresh = 0, parallel = FALSE, resample_every = 10, rescale = FALSE, subsample = FALSE) {
+SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thresh = 0, parallel = FALSE, resample_every = 10, rescale = FALSE, subsample = FALSE, print_updates = FALSE) {
   parameters <- as.list(environment())
   force(parameters)
 
   # Create times at which the BM chain is sampled at
   mesh_times <- seq(from = kill_time / num_meshes, to = kill_time, length.out = num_meshes)
-
-  # Create path and weight history
-  path_hist <- array(0, dim = c(num_meshes, num_particles, d))
-  weight_hist <- array(0, dim = c(num_meshes, num_particles))
 
   # Initialise Particles
   particles <- init_particles(num_particles, d, theta, data)
@@ -193,11 +191,11 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
   debug_hist <- list()
 
 
-  print(paste("Num Particles:", num_particles, "Mesh Number:", num_meshes, "Kill Time:", kill_time, "Threshold:", ess_thresh))
+  if (print_updates) print(paste("Num Particles:", num_particles, "Mesh Number:", num_meshes, "Kill Time:", kill_time, "Threshold:", ess_thresh))
 
 
   for (mesh_idx in seq_along(mesh_times)) {
-    propogate_info <- purrr::map(particles, ~ propogate_to_time_target(.x, mesh_times[mesh_idx], data, rescale, subsample), .progress=TRUE) |>
+    propogate_info <- purrr::map(particles, ~ propogate_to_time_target(.x, mesh_times[mesh_idx], data, rescale, subsample), .progress=print_updates) |>
       purrr::list_transpose()
 
     particles <- propogate_info$p
@@ -215,15 +213,9 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
     norm_weight <- subsample_info$norm_weight
     id <- subsample_info$id
     resample <- subsample_info$resample
+    print_msg <- subsample_info$print_msg
 
 
-    # COME BACK TO THIS FUNCTION LATER
-    if (d == 1) {
-      path_hist[mesh_idx, , 1] <- purrr::map_dbl(particles, "path_curr")
-    } else {
-      stop("Implement multi-dimensional save")
-    }
-    weight_hist[mesh_idx, ] <- norm_weight
 
 
 
@@ -233,9 +225,8 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
                                         incr_log_weight = incr_log_weight,
                                         norm_weight = norm_weight, ess = ess, resample = resample,
                                         mesh_idx = mesh_idx, mesh_time = mesh_times[mesh_idx], id = id)
-
     debug_hist[[length(debug_hist) + 1]] <- mesh_snapshot
-  
+    if (print_updates) print(print_msg)
   }
   invisible(NULL)
   return(list(debug_hist = debug_hist, parameters = parameters, data = data))
