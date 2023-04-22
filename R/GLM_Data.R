@@ -6,6 +6,7 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     prior_weights = NULL,
     data_y = NULL,
     data_x = NULL,
+    constant_marginal = NULL,
     log_pi_observed = function(beta) {
       sum(map_dbl(1:self$n, ~ self$log_pi_observed_i(beta, .x)))
     },
@@ -33,7 +34,7 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     logistic = function(eta) { # mu = g^-1(eta)
     },
     eta = function(beta, x) {
-      (beta * x)
+      sum(beta * x)
     },
     pi_actual = function(x) {
 
@@ -41,7 +42,7 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     pi_observed = function(x) {
     },
     grad_ll = function(beta, i) {
-      if (i == 0) return(0)
+      if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
       x <- self$data_x[i, ]
       eta_i <- self$eta(beta, x)
@@ -50,18 +51,18 @@ GLM <- R6::R6Class("GLM", inherit = Data,
       (y - mu) * (self$prior_weights[i] * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
     },
     lap_ll = function(beta, i) {
-      if (i == 0) return(0)
+      if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
       x <- self$data_x[i, ]
       eta_i <- self$eta(beta, x)
       mu <- self$logistic(eta_i)
       f1 <- -self$prior_weights[i]  / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) * x * x
-      # f2 <- (y - mu) * self$prior_weights[i] * x^2 / (self$dispersion * self$v(mu) * self$grad2_link(mu))
-      f2 <- 0
+      f2 <- (y - mu) * self$prior_weights[i] * x^2 / (self$dispersion * self$v(mu) * self$grad2_link(mu))
+      # f2 <- 0
       f1 + f2
     },
     fisher_information = function(i) { # Fisher information
-      if (i == 0) return(0)
+      if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
       x <- self$data_x[i, ]
       eta_i <- self$eta(self$x_hat, x)
@@ -101,7 +102,7 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     initialize = function(n, d) {
         if (is.null(self$dispersion)) self$dispersion <- self$get_dispersion_param()
         if (is.null(self$offset)) self$offset <- rep(0, n)
-        if (is.null(self$prior_weights)) self$prior_weights = rep(1, n)
+        if (is.null(self$prior_weights)) self$prior_weights <- rep(1, n)
         if (is.null(self$hessian_bound)) self$hessian_bound <- self$get_hessian_bound()
         if (is.null(self$lambda)) self$get_preconditioning_matrix()
         super$initialize(n, d)
@@ -110,9 +111,9 @@ GLM <- R6::R6Class("GLM", inherit = Data,
 )
 
 
-Normal <- R6::R6Class("Binomial", inherit = GLM,
+Normal <- R6::R6Class("Normal", inherit = GLM,
     public = list(
-    dispersion = 1,
+    dispersion = NULL,
     offset = 0,
     weights = NULL,
     unit_deviance = function(mu, y) {
@@ -138,6 +139,15 @@ Normal <- R6::R6Class("Binomial", inherit = GLM,
     },
     pi_observed = function(x) {
     },
+    lap_ll = function(beta, i) {
+      if (i == 0) return(rep(0, self$d))
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+      eta_i <- self$eta(beta, x)
+      mu <- self$logistic(eta_i)
+      f1 <- -self$prior_weights[i]  / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) * x * x
+      f1
+    },
     initialize = function(y, x) {
       self$data_y <- y
       self$data_x <- as.matrix(x)
@@ -147,12 +157,89 @@ Normal <- R6::R6Class("Binomial", inherit = GLM,
       self$n <- dim(self$data_x)[1]
       self$d <- dim(self$data_x)[2]
 
-      if (self$d == 1) self$dispersion <- var(y)
 
       beta_hat <- coef(lm(y ~ x - 1))[1:self$d]
+      self$dispersion <- summary(lm(y ~ x - 1))$sigma^2
       names(beta_hat) <- NULL
       self$x_hat <- beta_hat
 
+
+      super$initialize(self$n, self$d)
+      invisible(self)
+    }
+  )
+)
+
+
+Binomial <- R6::R6Class("Binomial", inherit = GLM,
+    public = list(
+    dispersion = 1,
+    offset = 0,
+    weights = NULL,
+    unit_deviance = function(mu, y) {
+      2*(log(y/mu) + (1-y)*log((1-y)/(1-mu)))
+    },
+    v = function(mu) { # Variance Function
+      mu * (1 - mu)
+    },
+    link = function(mu) { # g(mu) = eta
+      log(mu / (1 - mu))
+    },
+    grad_link = function(mu) {
+      1 / (mu - mu^2)
+    },
+    grad2_link = function(mu) {
+      (2*mu - 1) / ((mu - 1)^2 * mu^2) 
+    },
+    logistic = function(eta) { # mu = g^-1(eta)
+      exp(eta) / (1 + exp(eta))
+    },
+    lap_ll = function(beta, i) {
+      if (i == 0) return(rep(0, self$d))
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+      eta_i <- self$eta(beta, x)
+      mu <- self$logistic(eta_i)
+      if (mu == 1 || mu == 0) return(rep(0, self$d))
+      else f1 <- -self$prior_weights[i]  / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) * x * x
+      # f2 <- (y - mu) * self$prior_weights[i] / (self$dispersion * self$v(mu) * self$grad2_link(mu)) * x * x
+      f2 <- 0
+      f1 + f2
+    },
+    grad_ll = function(beta, i) {
+      if (i == 0) return(rep(0, self$d))
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+      eta_i <- self$eta(beta, x)
+
+      mu <- self$logistic(eta_i)
+      if (mu == 1 || mu == 0) return(rep(0, self$d))
+      else (y - mu) * (self$prior_weights[i] * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
+    },
+    fisher_information = function(i) { # Fisher information
+      if (i == 0) return(rep(0, self$d))
+      y <- self$data_y[i]
+      x <- self$data_x[i, ]
+      eta_i <- self$eta(self$x_hat, x)
+      mu <- self$logistic(eta_i)
+      if (mu == 1 || mu == 0) return(rep(0, self$d))
+      else self$prior_weights[i] * x^2 / (self$dispersion * self$v(mu) * self$grad_link(mu)^2)
+    },
+    pi_actual = function(x) {
+
+    },
+    pi_observed = function(x) {
+    },
+    initialize = function(y, x) {
+      self$data_y <- y
+      self$data_x <- as.matrix(x)
+
+      self$n <- dim(self$data_x)[1]
+      self$d <- dim(self$data_x)[2]
+
+      beta_hat <- coef(glm(self$data_y ~self$data_x - 1, family = binomial))
+      names(beta_hat) <- NULL
+      self$x_hat <- beta_hat
 
       super$initialize(self$n, self$d)
       invisible(self)

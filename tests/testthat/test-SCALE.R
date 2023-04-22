@@ -143,7 +143,7 @@ test_that("Bivariate GLM Normal Rescale Unsampled", {
   expect_snapshot(SCALE_info)
 })
 
-test_that("Bivariate GLM Normal Rescale Unsampled", {
+test_that("Bivariate GLM Normal Rescale Sampled", {
   list2env(bivariate_normal_n20_b5neg2, rlang::current_env())
   # n = n, d = d, x = x, y = y, beta_true = beta_true
   bi_normal <- Normal$new(y, x)
@@ -166,3 +166,47 @@ test_that("Bivariate GLM Normal Rescale Unsampled", {
   ### TODO: IMPLEMENT LOGISTIC REGRESSION
 })
 
+
+test_that("Bivariate Binomial Normal Rescale Sampled", {
+
+  list2env(small_logistic_example, rlang::current_env())
+  model_glm <- glm(y ~ x - 1, family = binomial)
+
+  binomial_data <- Binomial$new(y = y, x = x)
+
+  t_inc <- 0.001
+  theta <- sqrt(t_inc)
+  iterations <- 2
+  kill_time <- iterations * t_inc
+  num_particles <- 10
+  rescale <- TRUE
+  subsample <- TRUE
+
+  set.seed(150)
+  SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = binomial_data,
+                      ess_thresh = 0, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
+  expect_snapshot(SCALE_info)
+
+})
+
+test_that("Bivariate Binomial Normal Rescale Unsampled", {
+
+  list2env(small_logistic_example, rlang::current_env())
+  model_glm <- glm(y ~ x - 1, family = binomial)
+
+  binomial_data <- Binomial$new(y = y, x = x)
+
+  t_inc <- 0.001
+  theta <- sqrt(t_inc)
+  iterations <- 2
+  kill_time <- iterations * t_inc
+  num_particles <- 10
+  rescale <- TRUE
+  subsample <- FALSE
+
+  set.seed(150)
+  SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = binomial_data,
+                      ess_thresh = 0, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
+  expect_snapshot(SCALE_info)
+
+})

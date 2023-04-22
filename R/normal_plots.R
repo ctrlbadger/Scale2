@@ -68,7 +68,7 @@ normal_density_estimate <- function(debug_hist, idx = seq_along(debug_hist), dis
   ggplot() +
     geom_line(data = pi_vals, aes(x=mu_x, y=pi, linetype=pi_method), colour="red") +
     geom_density(data = debug_trbl, aes(x = path_curr, weight = norm_weight), alpha = 0.2) +
-    xlim(-5, 10)
+    ggplot2::xlim(-5, 10)
 }
 
 normal_density_path <- function(debug_hist, idx, dist_data, unscale = FALSE) {

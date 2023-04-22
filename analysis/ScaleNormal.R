@@ -33,20 +33,22 @@ create_normal_data <- function() {
 
   use_data(large_normal_n100_mneg2_s1, overwrite = FALSE)
 
+  ## Binomial NORMAL DATA
   set.seed(150)
   beta_true <- c(5, -2)
   n <- 20
   d <- 2
   x_1 <- rep(1, n)
-  x_2 <- rnorm(n, mean=0, sd=1)
-  y <- beta_true[1]*x_1 + beta_true[2] * x_2
+  x_2 <- seq(0, 10, length.out = n)
+  y <- beta_true[1]*x_1 + beta_true[2] * x_2 + as.matrix(rnorm(n, mean = 0, sd = 1))
   x <- matrix(c(x_1, x_2), ncol = 2)
 
   lm1 <- lm(y ~ x - 1)
+  summary(lm1)
   bivariate_normal_n20_b5neg2 <- list(
     n = n, d = d, x = x, y = y, beta_true = beta_true
   )
-  use_data(bivariate_normal_n20_b5neg2, overwrite = FALSE)
+  use_data(bivariate_normal_n20_b5neg2, overwrite = TRUE)
 
 }
 
@@ -64,7 +66,7 @@ test_SCALE_mean_normal <- function() {
 
   dist_data <- MeanNormalData$new(data_x, mu_true = mu, sigma_true = sigma)
 
-  # filename <- glue("2318NormalN(mu={mu},s={sigma}){t_inc=} {iterations=} {kill_time=} {num_particles=} {rescale=} {subsample=}.rdata", .transformer = vv_transformer)
+  filename <- glue("2318NormalN(mu={mu},s={sigma}){t_inc=} {iterations=} {kill_time=} {num_particles=} {rescale=} {subsample=}.rdata", .transformer = vv_transformer)
   print(paste(filename))
   # tryCatch(
   #   error = function(cnd) {
@@ -141,3 +143,114 @@ test_SCALE_mean_normal <- function() {
 
 }
 
+bivariate_SCALE_normal <- function() {
+  list2env(bivariate_normal_n20_b5neg2, rlang::current_env())
+  # n = n, d = d, x = x, y = y, beta_true = beta_true
+  bi_normal <- Normal$new(y, x)
+
+  t_inc <- 0.001
+  theta <- sqrt(t_inc)
+  iterations <- 100
+  kill_time <- iterations * t_inc
+  num_particles <- 1000
+  rescale <- TRUE
+  subsample <- FALSE
+
+  set.seed(150)
+  SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = bi_normal,
+                      ess_thresh = 0.5, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
+
+  idx <- floor(seq(1, iterations, length.out = 10))
+  density_path(SCALE_info, idx = idx, unscale = TRUE)
+  density_total(SCALE_info, idx = 10:iterations, unscale = TRUE)
+  plot_ess(SCALE_info, show_ess_thresh = TRUE)
+  GLM_trace_path(SCALE_info)
+}
+
+SCALE_mean_normal <- function() {
+
+  data <- small_normal_n10_m5_s5
+
+  t_inc <- 0.01
+  theta <- sqrt(t_inc)
+  iterations <- 100
+  kill_time <- iterations * t_inc
+  num_particles <- 1000
+  rescale <- TRUE
+  subsample <- TRUE
+
+  dist_data <- MeanNormalData$new(data$x_data, mu_true = data$mu, sigma_true = data$sigma)
+
+  # filename <- glue("NormalN(mu={mu},s={sigma}){t_inc=} {iterations=} {kill_time=} {num_particles=} {rescale=} {subsample=}.rdata", .transformer = vv_transformer)
+  filename <- "small_normal_n10_m5_s5.rdata"
+  set.seed(150)
+  SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = theta, num_meshes = iterations, kill_time = kill_time, data = dist_data,
+                      ess_thresh = 0.5, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
+
+  save(SCALE_info, dist_data, file = filename)
+  print(paste("Successfuly Saved", filename))
+  list2env(SCALE_info, envir=rlang::global_env())
+
+  GLM_trace_path(SCALE_info, unscale = TRUE)
+  plot_ess(SCALE_info, show_ess_thresh = TRUE)
+  
+  iterations <- SCALE_info$parameters$num_meshes
+  idx <- floor(seq(1, iterations, length.out = 10))
+  density_path(SCALE_info, idx = idx, unscale = TRUE)
+  idx <- floor(seq(iterations * 0.1, iterations))
+  density_total(SCALE_info, idx =idx, unscale = TRUE)
+}
+
+SCALE_binomial_normal <- function() {
+  list2env(small_logistic_example, rlang::current_env())
+  model_glm <- glm(y ~ x - 1, family = binomial)
+
+  binomial_data <- Binomial$new(y = y, x = x)
+
+  t_inc <- 0.1
+  theta <- sqrt(t_inc)
+  iterations <- 100
+  kill_time <- iterations * t_inc
+  num_particles <- 100
+  rescale <- TRUE
+  subsample <- FALSE
+
+  set.seed(150)
+  filename <- "SCALE_small_logistic_example"
+  SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = binomial_data,
+                      ess_thresh = 0.5, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
+  
+  save(SCALE_info, binomial_data, file = filename)
+  print(paste("Successfuly Saved", filename))
+  list2env(SCALE_info, envir=rlang::global_env())
+
+  GLM_trace_path(SCALE_info, unscale = TRUE)
+  plot_ess(SCALE_info, show_ess_thresh = TRUE)
+  
+  iterations <- SCALE_info$parameters$num_meshes
+  idx <- floor(seq(1, iterations, length.out = 10))
+  density_path(SCALE_info, idx = idx, unscale = TRUE)
+  idx <- floor(seq(iterations * 0.1, iterations))
+  density_total(SCALE_info, idx =idx, unscale = TRUE)
+
+  idx_sample <- floor(seq(from = length(debug_hist) / 10, to = length(debug_hist)))
+  
+}
+
+bivariate_SCALE_binomial <- function() {
+  set.seed(1)
+  dsz             <<- 10                       # Size of data set
+  dimen           <<- 2                       # Dimensionality (>1)
+  examp.design <<- matrix(c(rep(1,dsz),(-1)^gtools::odd(1:(dsz*(dimen-1)))/c(1:dsz)),nrow=dsz,ncol=2,byrow=FALSE)
+  examp.data <<- c(rep(1,2),rep(0,8))
+
+  
+  small_logistic_example <- list(
+    n = 10, d = 2, x = examp.design, y = examp.data
+  )
+
+  model_glm <- glm(examp.data ~ examp.design - 1, family = binomial)
+  use_data(small_logistic_example, overwrite = FALSE)
+
+
+}

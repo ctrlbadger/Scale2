@@ -71,6 +71,7 @@ resample_particles <- function(num_particles, particles, incr_log_weight, ess_th
     }
     current_paths <- map(particles, "path_curr")
   }
+
   id <- map_int(1:num_particles, ~ pluck(particles, .x, attr_getter("id")))
   list(particles = particles, ess = ess, norm_weight = norm_weight, resample = resample, id=id, print_msg = debug_msg)
 }

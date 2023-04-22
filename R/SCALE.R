@@ -54,8 +54,8 @@ particle <- function(d, path_curr, theta, log_weight = NULL, id = NULL) {
 init_particles <- function(num_particles, d, theta, data) {
   # Initialise a list of particles with a normal distributed path
   # path_curr <- map(seq_along(d), rnorm())
-  purrr::map(1:num_particles, ~ particle(d, path_curr = rep(runif(1, min=-1, max = 1), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
-  # map(1:num_particles, ~ particle(d, path_curr = rep(rnorm(1, mean=0, sd=data$inv_lambda), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
+  # purrr::map(1:num_particles, ~ particle(d, path_curr = rep(runif(1, min=-1, max = 1), d), theta, log_weight = - log(num_particles), id = as.integer(.x)))
+  map(1:num_particles, ~ particle(d, path_curr = rnorm(d, mean = 0, sd = 1), theta, log_weight = - log(num_particles), id = as.integer(.x)))
 }
 
 
@@ -220,6 +220,11 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
 
 
     # Create snapshot instance
+    if (rescale) {
+      for (i in seq_along(particles)) {
+        particles[[i]]$rescaled_path_curr <- data$x_unscale(particles[[i]]$path_curr)
+      }
+    }
     mesh_snapshot <- particle_snapshot(particles,
                                         iter_counter = iter_counter,
                                         incr_log_weight = incr_log_weight,

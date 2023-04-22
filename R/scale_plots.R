@@ -44,30 +44,25 @@ id_trace_path <- function(debug_hist, idx = seq_along(debug_hist), show_lines = 
     guides(color = "none", size="none")
 }
 
-plot_ess <- function(debug_hist, show_ess_thresh = FALSE) {
-  if (show_ess_thresh) {
-    temp_ess_thresh <- NULL
-    temp_resample_every <- NULL
-    temp_ess_thresh <- parameters$ess_thresh
-    # try(temp_ess_thresh <- as.list(parameters[[1]])$ess_thresh)
-    # try(temp_resample_every <- as.list(parameters[[1]])$resample_every)
-    temp_resample_every <- parameters$resample_every
-    if (is.numeric(temp_ess_thresh)) ess_thresh <- temp_ess_thresh
-    if (is.numeric(temp_resample_every)) ess_thresh <- temp_ess_thresh
-  }
-  # print(ess_thresh)
-  ess_tbl <- tibble(mesh_idx = seq_along(debug_hist),
+plot_ess <- function(SCALE_info, show_ess_thresh = FALSE) {
+    debug_hist <- SCALE_info$debug_hist
+    if (show_ess_thresh) {
+      ess_thresh <- SCALE_info$parameters$ess_thresh
+      resample_every <- SCALE_info$parameters$resample_every
+    }
+    # print(ess_thresh)
+    ess_tbl <- tibble(mesh_idx = seq_along(debug_hist),
                     ess = map_dbl(debug_hist, "ess"),
-                    resample =  as.factor(map_lgl(debug_hist, "resample")))
+                    resample =  as.factor(purrr::map_lgl(debug_hist, "resample")))
 
-  ess_plot <- ggplot(data=ess_tbl, aes(x = mesh_idx, y = ess, colour = resample)) +
-    geom_point()
+    ess_plot <- ggplot(data=ess_tbl, aes(x = mesh_idx, y = ess, colour = resample)) +
+      ggplot2::geom_point()
 
-  if (show_ess_thresh && (ess_thresh <= 1)) {
-    ess_plot <- ess_plot + geom_hline(yintercept = ess_thresh, linetype="longdash", linewidth=1)
-  }
+    if (show_ess_thresh && (ess_thresh <= 1)) {
+      ess_plot <- ess_plot + ggplot2::geom_hline(yintercept = ess_thresh, linetype="longdash", linewidth=1)
+    }
 
-  ess_plot
+    ess_plot
 }
 
 trace_path <- function(debug_hist, idx = seq_along(debug_hist)) {
@@ -87,3 +82,33 @@ trace_path <- function(debug_hist, idx = seq_along(debug_hist)) {
 
 }
 
+GLM_trace_path <- function(SCALE_info, idx = seq_along(SCALE_info$debug_hist), unscale = TRUE) {
+  list2env(SCALE_info, rlang::current_env())
+  debug_trbl <- debug_hist[idx] %>%
+    map(as_tibble) %>%
+    imap(., ~ mutate(.x, path_curr, .keep='used', mesh_idx = idx[.y])) %>%
+    map(as_tibble) %>%
+    reduce(add_row)
+
+  
+
+  n <- data$n
+  d <- data$d
+  num_p <- parameters$num_particles 
+  iters <- length(idx)
+
+  path_str <- ifelse(unscale, "rescaled_path_curr", "path_curr")
+  debug_trbl <- map2(debug_hist[idx], idx, ~ 
+    tibble(beta = unlist((pluck(.x, path_str))), 
+            beta_dim = factor(rep(1:d, num_particles)), 
+            mesh_idx = factor(.y),
+            norm_weight = rep(pluck(.x , 'norm_weight'), each = d))) %>%
+            reduce(add_row) %>%
+            group_by(mesh_idx, beta_dim) %>% mutate(beta_average = mean(beta)) %>% dplyr::ungroup()
+
+  ggplot(debug_trbl) + 
+    ggplot2::geom_bin_2d(aes(x = mesh_idx, y=beta)) +
+    ggplot2::geom_line(aes(x = mesh_idx, y=beta_average), linewidth = 1, color='yellow', alpha=0.5) +
+    ggplot2::facet_grid(rows = ggplot2::vars(beta_dim), scales = "free", labeller = "label_both") +
+    ggplot2::scale_fill_continuous(type = "viridis")
+}

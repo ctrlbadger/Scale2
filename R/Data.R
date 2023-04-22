@@ -7,12 +7,12 @@ Data <- R6::R6Class("Data",
                   inv_lambda = NULL, # Inverse of Preconditioning Matrix
                   hessian_bound = NULL, # Hessian Bound used in obtaining phi lower and upper bounds
                   x_hat = NULL, # Centering Control Variate
-                  x_hat_total_grad_ll = 0,
-                  x_hat_total_lap_ll = 0,
-                  x_hat_C = 0,
-                  x_hat_grad_ll_i = 0,
-                  x_hat_lap_ll_i = 0,
-                  x_hat_norm_2grad_log = 0,
+                  x_hat_total_grad_ll = NULL,
+                  x_hat_total_lap_ll = NULL,
+                  x_hat_C = NULL,
+                  x_hat_grad_ll_i = NULL,
+                  x_hat_lap_ll_i = NULL,
+                  x_hat_norm_2grad_log = NULL,
                   initialize = function(n, d, x_hat = NULL, hessian_bound = NULL) {
                     self$n <- n
                     self$d <- d
