@@ -25,3 +25,16 @@ vv_transformer <- function(text, envir) {
   }
   glue::glue_collapse(c(text, " = ", res))
 }
+
+
+get_aliases <- function(treatment_tibble, generator) {
+  library(purrr)
+  treatment_tibble %>% 
+    as.list() %>% 
+    list_transpose() %>% # Operate Row_Wise
+    map_dfr( ~ dot_operation(.x, generator))
+}
+
+dot_operation <- function(treat, gen) {
+  (treat + gen) %% 2
+}

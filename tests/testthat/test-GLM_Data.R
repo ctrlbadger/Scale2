@@ -1,3 +1,42 @@
+phi_plot_3d <- function(dist_data) {
+  library(plotly)
+  lim_max <- 2
+  lim_length <- 100
+
+  beta_1 <- seq(-lim_max, lim_max, length.out = lim_length)
+  beta_2 <- seq(-lim_max, lim_max, length.out = lim_length)
+
+  dist_data$phi_estimator(dist_data$x_hat, 1, 1)
+
+  z_phi <- matrix(0, nrow=lim_length, ncol=lim_length)
+  for (x in seq_along(beta_1)) {
+    for (y in seq_along(beta_2)) {
+      z_phi[x, y] <- dist_data$phi(dist_data$x_unscale(c(beta_1[x], beta_2[y])))
+    }
+  }
+
+  z_ub <- matrix(0, nrow=lim_length, ncol=lim_length)
+  z_lb <- matrix(0, nrow=lim_length, ncol=lim_length)
+  for (x in seq_along(beta_1)) {
+    for (y in seq_along(beta_2)) {
+      phi_info <- dist_data$phi_estimator_bounds(norm(dist_data$x_unscale(c(beta_1[x], beta_2[y])) - dist_data$x_hat, type="2"))
+      z_ub[x, y] <- phi_info$phi_u
+      z_lb[x, y] <- phi_info$phi_l
+    }
+  }
+
+  fig <- plot_ly(
+    x = ~beta_1,
+    y = ~beta_2,
+  ) %>%
+    add_surface(z = ~z_phi) %>%
+    add_surface(z = ~z_ub) %>%
+    add_surface(z = ~z_lb)
+
+  fig
+}
+
+
 test_that("Normal GLM", {
   list2env(small_normal_n10_m5_s5, rlang::current_env())
   y <- x_data
@@ -99,7 +138,7 @@ test_that("Bivariate Binomial GLM", {
 
   binomial_data <- Binomial$new(y = y, x = x)
   expect_equal(binomial_data$eta(c(3, 2), c(5, 10)), c(35))
-  
+
   beta <- binomial_data$x_hat
   # beta <- binomial_data$x_unscale(c(40, 40))
   binomial_data$dispersion
@@ -111,7 +150,7 @@ test_that("Bivariate Binomial GLM", {
   binomial_data$lap_ll(beta, 1)
   binomial_data$lap_ll(beta, 4)
   binomial_data$grad_ll(beta, 4)
-  
+
   binomial_data$total_lap_ll(beta)
   binomial_data$total_grad_ll(beta)
   binomial_data$phi(beta)
@@ -121,40 +160,3 @@ test_that("Bivariate Binomial GLM", {
   phi_plot_3d(binomial_data)
 })
 
-phi_plot_3d <- function(dist_data) {
-  library(plotly)
-  lim_max <- 2
-  lim_length <- 100
-
-  beta_1 <- seq(-lim_max, lim_max, length.out = lim_length)
-  beta_2 <- seq(-lim_max, lim_max, length.out = lim_length)
-
-  dist_data$phi_estimator(dist_data$x_hat, 1, 1)
-
-  z_phi <- matrix(0, nrow=lim_length, ncol=lim_length)
-  for (x in seq_along(beta_1)) {
-    for (y in seq_along(beta_2)) {
-      z_phi[x, y] <- dist_data$phi(dist_data$x_unscale(c(beta_1[x], beta_2[y])))
-    }
-  }
-
-  z_ub <- matrix(0, nrow=lim_length, ncol=lim_length)
-  z_lb <- matrix(0, nrow=lim_length, ncol=lim_length)
-  for (x in seq_along(beta_1)) {
-    for (y in seq_along(beta_2)) {
-      phi_info <- dist_data$phi_estimator_bounds(norm(dist_data$x_unscale(c(beta_1[x], beta_2[y])) - dist_data$x_hat, type="2"))
-      z_ub[x, y] <- phi_info$phi_u
-      z_lb[x, y] <- phi_info$phi_l
-    }
-  }
-
-  fig <- plot_ly(
-    x = ~beta_1,
-    y = ~beta_2,
-  ) %>%
-    add_surface(z = ~z_phi) %>%
-    add_surface(z = ~z_ub) %>%
-    add_surface(z = ~z_lb)
-
-  fig
-}

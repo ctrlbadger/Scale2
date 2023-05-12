@@ -49,3 +49,10 @@ po/*~
 rsconnect/
 .Rprofile
 .lintr
+inst/doc
+
+# Airline Data
+data/Airline/*
+
+#Written Report
+report/*

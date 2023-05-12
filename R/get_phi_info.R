@@ -6,10 +6,7 @@ get_phi_info <- function(data, path_l, path_u, rescale = TRUE, subsample = FALSE
       path_u <- data$x_unscale(path_u)
     }
     phi_bounds_info <- data$phi_bounds_exact(path_l, path_u)
-
   } else {
-
-
     if (rescale) maximal_distance <- sum((data$lambda %*% pmax(abs(path_l), abs(path_u)))^2)^(1/2)
     else maximal_distance <- sum(pmax(abs(path_l), abs(path_u))^2)^(1/2)
 

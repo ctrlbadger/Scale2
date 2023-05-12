@@ -178,6 +178,37 @@ particle_snapshot <- function(particles, ...) {
   purrr::list_transpose(particles) |>  append(values = list(...))
 }
 
+
+
+#' ScaLE (Scaleable Langevin Exact Algorithm)
+#'
+#' @param num_particles Integer number of particles
+#' @param d Integer dimension of distribution
+#' @param theta Brownian motion hypercube size. Positive single value
+#' @param num_meshes Integer. Equivalent to iteration count
+#' @param kill_time Stop time of the algorithm. Positive numeric
+#' @param data An R6 [Data()] class specifying the distribution to be sampled from.
+#' @param ess_thresh Effective sample size threshold. numeric from [0, 1]. If empirical ess is lower than threshold, particles will be resampled
+#' @param parallel Whether to parallelise the importance sampling step at each iteration. Does not currently have better performance
+#' @param resample_every A second way to resample particles at every nth iteration. Numeric integer less than `num_meshes`
+#' @param rescale Logical. If TRUE, BM path will be centered at 0 but all calls to phi and boundedness will be scaled by preconditioning matrix and centered, should help with mixing. If FALSE no such scaling will take place.
+#' @param subsample Logical. If TRUE, [get_phi_info()] will sample 2 data points for each phi update. If FALSE, use full data set for each phi_bound.
+#' @param print_updates Logical. Display updates
+#'
+#' @return A [list()] containing all input `parameters` and a second list `mesh_hist` of length `num_meshes`.
+#' Each `mesh_hist` for any given iteration includes:
+#' - `particles` list containing all `particle` classes at
+#' - `iter_counter` what iteration count
+#' - `incr_log_weight` a vector of incremental log weight for each particle
+#' - `norm_weight` A vector of normalised weights
+#' - `ess` The empirical effective sample size of the current particles
+#' - `resample` Logical, whether the particles were resampled at current iteration
+#' - `mesh_idx` Index of current mesh time
+#' - `mesh_time` Mesh time of Brownian Motion path particles
+#' - `id` A vector of id's of all particles
+#' @export
+#'
+#' @examples
 SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thresh = 0, parallel = FALSE, resample_every = 10, rescale = FALSE, subsample = FALSE, print_updates = FALSE) {
   parameters <- as.list(environment())
   force(parameters)
@@ -188,7 +219,7 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
   # Initialise Particles
   particles <- init_particles(num_particles, d, theta, data)
 
-  debug_hist <- list()
+  mesh_hist <- list()
 
 
   if (print_updates) print(paste("Num Particles:", num_particles, "Mesh Number:", num_meshes, "Kill Time:", kill_time, "Threshold:", ess_thresh))
@@ -216,9 +247,6 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
     print_msg <- subsample_info$print_msg
 
 
-
-
-
     # Create snapshot instance
     if (rescale) {
       for (i in seq_along(particles)) {
@@ -230,9 +258,9 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
                                         incr_log_weight = incr_log_weight,
                                         norm_weight = norm_weight, ess = ess, resample = resample,
                                         mesh_idx = mesh_idx, mesh_time = mesh_times[mesh_idx], id = id)
-    debug_hist[[length(debug_hist) + 1]] <- mesh_snapshot
+    mesh_hist[[length(mesh_hist) + 1]] <- mesh_snapshot
     if (print_updates) print(print_msg)
   }
   invisible(NULL)
-  return(list(debug_hist = debug_hist, parameters = parameters, data = data))
+  return(list(debug_hist = mesh_hist, parameters = parameters, data=data))
 }

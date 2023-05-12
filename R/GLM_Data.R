@@ -110,7 +110,12 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     )
 )
 
-
+#' Normal GLM Model R6 Class
+#' @description A normal linear model class for specifying the distribution to the scale algorithm
+#' @examples
+#' list2env(bivariate_normal_n20_b5neg2, rlang::current_env())
+#' bi_normal <- Normal$new(y, x)
+#' @export
 Normal <- R6::R6Class("Normal", inherit = GLM,
     public = list(
     dispersion = NULL,
@@ -170,7 +175,14 @@ Normal <- R6::R6Class("Normal", inherit = GLM,
   )
 )
 
-
+#' Binomial R6 Class for Scale
+#' @description A logistic regression model using a GLM framework for the scale model.
+#'
+#' @examples
+#' list2env(small_logistic_example, rlang::current_env())
+#' model_glm <- glm(y ~ x - 1, family = binomial)
+#' binomial_data <- Binomial$new(y = y, x = x)
+#' @export
 Binomial <- R6::R6Class("Binomial", inherit = GLM,
     public = list(
     dispersion = 1,
@@ -189,7 +201,7 @@ Binomial <- R6::R6Class("Binomial", inherit = GLM,
       1 / (mu - mu^2)
     },
     grad2_link = function(mu) {
-      (2*mu - 1) / ((mu - 1)^2 * mu^2) 
+      (2*mu - 1) / ((mu - 1)^2 * mu^2)
     },
     logistic = function(eta) { # mu = g^-1(eta)
       exp(eta) / (1 + exp(eta))
