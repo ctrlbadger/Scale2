@@ -90,25 +90,26 @@ GLM_trace_path <- function(SCALE_info, idx = seq_along(SCALE_info$debug_hist), u
     map(as_tibble) %>%
     reduce(add_row)
 
-  
+
 
   n <- data$n
   d <- data$d
-  num_p <- parameters$num_particles 
+  num_p <- parameters$num_particles
   iters <- length(idx)
 
   path_str <- ifelse(unscale, "rescaled_path_curr", "path_curr")
-  debug_trbl <- map2(debug_hist[idx], idx, ~ 
-    tibble(beta = unlist((pluck(.x, path_str))), 
-            beta_dim = factor(rep(1:d, num_particles)), 
+  debug_trbl <- map2(debug_hist[idx], idx, ~
+    tibble(beta = unlist((pluck(.x, path_str))),
+            beta_dim = factor(rep(1:d, num_particles)),
             mesh_idx = factor(.y),
-            norm_weight = rep(pluck(.x , 'norm_weight'), each = d))) %>%
+            norm_weight = rep(pluck(.x , 'norm_weight'), each = d),
+            mesh_time = .x$mesh_time)) %>%
             reduce(add_row) %>%
             group_by(mesh_idx, beta_dim) %>% mutate(beta_average = mean(beta)) %>% dplyr::ungroup()
 
-  ggplot(debug_trbl) + 
-    ggplot2::geom_bin_2d(aes(x = mesh_idx, y=beta)) +
-    ggplot2::geom_line(aes(x = mesh_idx, y=beta_average), linewidth = 1, color='yellow', alpha=0.5) +
+  ggplot(debug_trbl) +
+    ggplot2::geom_bin_2d(aes(x = mesh_time, y=beta)) +
+    ggplot2::geom_line(aes(x = mesh_time, y=beta_average), linewidth = 1, color='yellow', alpha=0.5) +
     ggplot2::facet_grid(rows = ggplot2::vars(beta_dim), scales = "free", labeller = "label_both") +
     ggplot2::scale_fill_continuous(type = "viridis")
 }

@@ -1,4 +1,6 @@
 
+binomial()
+
 GLM <- R6::R6Class("GLM", inherit = Data,
     public = list(
     dispersion = NULL,

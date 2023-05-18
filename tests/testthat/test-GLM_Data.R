@@ -25,11 +25,54 @@ phi_plot_3d <- function(dist_data) {
     }
   }
 
+
+
   fig <- plot_ly(
     x = ~beta_1,
     y = ~beta_2,
   ) %>%
     add_surface(z = ~z_phi) %>%
+    add_surface(z = ~z_ub) %>%
+    add_surface(z = ~z_lb)
+
+  fig
+}
+
+phi_plot_3d_estimator <- function(dist_data, i, j, lim_length = 100, lim_max = 2) {
+  library(plotly)
+  lim_max <- lim_max
+  lim_length <- lim_length
+
+  beta_1 <- seq(-lim_max, lim_max, length.out = lim_length)
+  beta_2 <- seq(-lim_max, lim_max, length.out = lim_length)
+
+  dist_data$phi_estimator(dist_data$x_hat, 1, 1)
+
+  z_phi <- matrix(0, nrow=lim_length, ncol=lim_length)
+  z_phi1 <- matrix(0, nrow=lim_length, ncol=lim_length)
+  for (x in seq_along(beta_1)) {
+    for (y in seq_along(beta_2)) {
+      z_phi[x, y] <- dist_data$phi(dist_data$x_unscale(c(beta_1[x], beta_2[y])))
+      z_phi1[x, y] <- dist_data$phi_estimator(dist_data$x_unscale(c(beta_1[x], beta_2[y])), i, j)
+    }
+  }
+  print("We  got here")
+
+  z_ub <- matrix(0, nrow=lim_length, ncol=lim_length)
+  z_lb <- matrix(0, nrow=lim_length, ncol=lim_length)
+  for (x in seq_along(beta_1)) {
+    for (y in seq_along(beta_2)) {
+      phi_info <- dist_data$phi_estimator_bounds(norm(dist_data$x_unscale(c(beta_1[x], beta_2[y])) - dist_data$x_hat, type="2"))
+      z_ub[x, y] <- phi_info$phi_u
+      z_lb[x, y] <- phi_info$phi_l
+    }
+  }
+
+  fig <- plot_ly(
+    x = ~beta_1,
+    y = ~beta_2,
+  ) %>%
+    add_surface(z = ~z_phi1) %>%
     add_surface(z = ~z_ub) %>%
     add_surface(z = ~z_lb)
 
@@ -154,9 +197,57 @@ test_that("Bivariate Binomial GLM", {
   binomial_data$total_lap_ll(beta)
   binomial_data$total_grad_ll(beta)
   binomial_data$phi(beta)
+  binomial_data$phi(c(0, 0))
+  binomial_data$phi_estimator(c(0, 0), 5, 3)
+
   binomial_data$phi_estimator(beta, 1, 2)
   binomial_data$phi_estimator_bounds(norm(0, type = "2"))
+
   binomial_data$x_hat_norm_2grad_log
   phi_plot_3d(binomial_data)
+
+  phi_plot_3d_estimator(binomial_data, 10, 2, lim_length = 10, lim_max = 2)
+
+  beta <- binomial_data$x_unscale(c(0.0145, 1.2475))
+  binomial_data$phi(beta)
+  binomial_data$phi_estimator(beta, 1, 2)
+  binomial_data$phi_estimator_bounds(norm(beta, type = "2"))
+
+
+  ### WHATS HAPPENING
+  i <- 1; j <- 2
+  dist_data <- binomial_data
+  lim_max <- 2
+  lim_length <- 10
+  beta_1 <- seq(-lim_max, lim_max, length.out = lim_length)
+  beta_2 <- seq(-lim_max, lim_max, length.out = lim_length)
+
+  beta <- binomial_data$x_unscale(c(0.0145, 1.2475))
+
+  ### EXAMPLE WHEN THING NOT WORK
+  path_u <- c(0.976, -0.266)
+  path_l <- c(0.776, -0.366)
+  path_curr <- c(0.905, -0.266)
+  path_curr_unscale <-binomial_data$x_unscale(path_curr)
+  get_phi_info(binomial_data, path_l, path_u, rescale = TRUE, subsample = FALSE)
+  # we get and
+  phi_u <- 22.36792
+  phi_l <- -24.19018
+  binomial_data$phi_estimator(path_curr_unscale, 1, 1)
+
+
+  binomial_data$phi_estimator_bounds(norm(beta, type = "2"))
+
+
+  dist_data$phi_estimator(dist_data$x_hat, 9, 7)
+
+  z_phi <- matrix(0, nrow=lim_length, ncol=lim_length)
+  z_phi1 <- matrix(0, nrow=lim_length, ncol=lim_length)
+  for (x in seq_along(beta_1)) {
+    for (y in seq_along(beta_2)) {
+      z_phi[x, y] <- dist_data$phi(dist_data$x_unscale(c(beta_1[x], beta_2[y])))
+      z_phi1[x, y] <- dist_data$phi_estimator(dist_data$x_unscale(c(beta_1[x], beta_2[y])), i, j)
+    }
+  }
 })
 

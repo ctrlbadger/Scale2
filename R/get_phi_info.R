@@ -20,12 +20,12 @@ get_phi_info <- function(data, path_l, path_u, rescale = TRUE, subsample = FALSE
 
   if (rescale) x_transf <- function(x) data$x_unscale(x)
   else x_transf <- function(x) x
-
+  #print(paste("RESCALE", rescale))
   A = NULL
   if (subsample) {
     # Get Sample Points
     A <- sample(0:data$n, size = 2, replace = TRUE)
-
+    # print(glue("Sampled Entries are {A[1]}, {A[2]}"))
     phi_func <- function(x) {
       force(A)
 

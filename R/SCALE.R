@@ -41,12 +41,7 @@ particle <- function(d, path_curr, theta, log_weight = NULL, id = NULL) {
 
   # Initialise log weight
   if (!is.null(log_weight))  p$log_weight <- log_weight
-
-
   p <- center_hypercube(p)
-
-
-
   p
 }
 
@@ -62,7 +57,7 @@ init_particles <- function(num_particles, d, theta, data) {
 # Get new particle event as minimum of BM kingman local bound poisson proccess time, hitting time or time_target
 # Changes time_next & time_next_is_tau
 get_next_event <- function(p, time_target) {
-  # kingman poisson process update event
+  # poisson process update event
   kingman_event <- rexp(1, rate = p$phi_u - p$phi_l) + p$time_curr
   # Next tau hitting time
   next_tau_event <- p$time_tau[p$tau_order[1]]

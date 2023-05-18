@@ -37,14 +37,14 @@ eadelC         <- function(mt,s,t,x,y,m,u){if(mt>=mpfrthr){pbn<-mt*mpfrpbn;s<-mp
 #############################################
 
 scale.midpt <- function(q, s, tau, x, y, minI, bdry){
-    
+
     ## Repeat until acceptance
     repeat{
         ### Simulation of Bessel proposal
         c.scaling     <- c(tau-s,minI*(x-y)*(tau-q)/(tau-s)^1.5,sqrt((tau-q)*(q-s))/(tau-s))
         bb.sims          <- rnorm(3,0,sd=c.scaling[3])
         w                 <- y + minI*sqrt(c.scaling[1]*((c.scaling[2]+bb.sims[1])^2+bb.sims[2]^2+bb.sims[3]^2))
-        
+
         ### Determine acceptance / rejection of proposal
         u               <- runif(1,0,1) # Uniform RV to make accept / reject decision
         counter     <- ceiling(sqrt((tau-s)+(bdry-y)^2)/(2*abs(bdry-y))); if(gtools::even(counter)==1){counter <- counter + 1} # Determining the minimum threshold for computing the boundary
@@ -53,7 +53,7 @@ scale.midpt <- function(q, s, tau, x, y, minI, bdry){
             if(u <= bounds[1]){accI <- 1; break} # Determine whether to accept
             if(u > bounds[2]){accI <- 0; break} # Determine whether to reject
             counter <- counter + 2} # Increase counter
-        
+
         ### If accept then break loop
         if(accI == 1){break}}
     ### Output midpt
@@ -94,3 +94,53 @@ bm.pass        <- function(s=0,x=0,theta=1,Jst.t=0.64,Jst.rat=0.5776972){ # thet
     repeat{sim <- dev.rej(dev.pr()$X); if(sim$Acc==1){break}}
     tau <- s + theta^2*sim$X; minI <- 2*rbinom(1,1,0.5)-1; y <- x - theta*minI
     list(tau=tau,y=y,minI=minI)}
+
+
+#############################################
+#### 1.2 - Resampling Algorithms
+#############################################
+##### 1.2.1 - Multinomial Resampling
+#############################################
+
+multi.resamp     <- function(p.wei,n=length(p.wei)){ # Multinomial Resampling
+  if((sum(p.wei)>0)&(n>0)){ # Check whether resampling possible
+    p.idx        <- sample(1:length(p.wei),n,replace=TRUE,prob=p.wei) # Sampled Index
+  }else{p.idx     <- numeric(0)} # If resampling not possible return empty vector
+  list(p.idx=p.idx)} # Return particle indices
+
+#############################################
+##### 1.2.2 - Systematic Resampling
+#############################################
+
+system.resamp    <- function(p.wei,n=length(p.wei)){ # Systematic Resampling
+  if((sum(p.wei)>0)&(n>0)){ # Check whether resampling possible
+    cum.wei        <- cumsum(p.wei)/sum(p.wei) # Normalise and calculate cumulative weights
+    samp.vec    <- seq(runif(1,0,1/n),1,1/n) # Vector of cdf samples
+    p.idx        <- numeric(0); for(i in 1:n){p.idx <- c(p.idx,length(cum.wei[samp.vec[i]>=cum.wei])+1)} # Sample from cdf
+  }else{p.idx     <- numeric(0)} # If resampling not possible return empty vector
+  list(p.idx=p.idx)} # Return particle indices
+
+#############################################
+##### 1.2.3 - Stratified Resampling
+#############################################
+
+strat.resamp    <- function(p.wei,n=length(p.wei)){ # Stratified Resampling
+  vec.length  <- length(p.wei) # Calculate the length of the input vector
+  cum.wei        <- cumsum(p.wei) # Calculate cumulative weights
+  if(cum.wei[vec.length]>0){ # Check whether resampling possible
+    cum.wei     <- cum.wei/cum.wei[vec.length]  # Normalise cumulative weights
+    samp.vec    <- seq(0,(n-1)/n,1/n) + runif(n,0,1/n) # Vector of cdf samples
+    p.idx <- findInterval(samp.vec,cum.wei)+1 # Sample from cdf
+  }else{p.idx     <- numeric(0)} # If resampling not possible return empty vector
+  list(p.idx=p.idx)} # Return particle indices
+
+#############################################
+##### 1.2.4 - Residual Resampling
+#############################################
+
+resid.resamp    <- function(p.wei,n=length(p.wei),nest.resamp=strat.resamp){ # Residual Resampling
+  if((sum(p.wei)>0)&(n>0)){ # Check whether resampling possible
+    det.resamp    <- floor(n*p.wei/sum(p.wei))
+    p.idx        <- c(rep(1:length(p.wei),det.resamp),nest.resamp(p.wei-det.resamp*(sum(p.wei)/n),n=n-sum(det.resamp))$p.idx)
+  }else{p.idx     <- numeric(0)} # If resampling not possible return empty vector
+  list(p.idx=p.idx)} # Return particle indices

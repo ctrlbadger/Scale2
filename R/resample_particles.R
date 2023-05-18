@@ -1,6 +1,9 @@
+multinomial_resamp <- function(norm_weight, num_particles) {
+  sample.int(num_particles, replace = TRUE, prob = norm_weight)
+}
 
 
-resample_particles <- function(num_particles, particles, incr_log_weight, ess_thresh, resample_overide, mesh_idx) {
+resample_particles <- function(num_particles, particles, incr_log_weight, ess_thresh, resample_overide, mesh_idx, resample_method = c("systematic")) {
   # Get previous log weights for each particle
   prev_log_weight <- map_dbl(particles, "log_weight")
 
@@ -33,7 +36,12 @@ resample_particles <- function(num_particles, particles, incr_log_weight, ess_th
     ## Perform Sampling Step
 
     # MULTINOMIAL RESAMPLING
-    sample_idx <- sample.int(num_particles, replace = TRUE, prob = norm_weight)
+    if (resample_method == "multinomial") {
+      sample_idx <- multinomial_resamp(norm_weight, num_particles)
+    }
+    if (resample_method == "systematic") {
+      sample_idx <- strat.resamp(norm_weight, num_particles)$p.idx
+    }
 
     # Stratified Resampling
     # sample_idx <- strat.resamp(norm_weight, num_particles)$p.idx
@@ -45,9 +53,6 @@ resample_particles <- function(num_particles, particles, incr_log_weight, ess_th
 
 
     particles <- particles[sample_idx]
-
-
-
 
     norm_weight <- rep(1 / num_particles, num_particles)
 

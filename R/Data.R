@@ -52,7 +52,7 @@ Data <- R6::R6Class("Data",
 
                     # vector_step <- sum(a_i * (2 * self$total_grad_ll + a_j))
 
-                    inner_prod_term <- t(a_i) %*% as.matrix(2 * self$x_hat_total_grad_ll + a_j) %>% as.double()
+                    inner_prod_term <- 0.5 * t(a_i) %*% as.matrix(2 * self$x_hat_total_grad_ll + a_j) %>% as.double()
 
                     0.5 * (inner_prod_term + self$div_alpha_subsample(x, i)) + self$x_hat_C
                   },
