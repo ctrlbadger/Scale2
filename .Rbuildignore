@@ -2,3 +2,12 @@
 ^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.Rproj$         # Designates the directory as an RStudio Project
+^\.Rproj\.user$     # Used by RStudio for temporary files
+^README\.Rmd$       # An Rmd file used to generate README.md
+^LICENSE\.md$       # Full text of the license
+^cran-comments\.md$ # Comments for CRAN submission
+^data-raw$          # Code used to create data included in the package
+^\.github$          # GitHub Actions workflows
+^\.lintr
+^\.vscode

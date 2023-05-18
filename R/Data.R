@@ -113,28 +113,55 @@ Data <- R6::R6Class("Data",
                 )
 )
 
-# Distribution Info for sampling from cauchy distribution, inherits from Data
-# Defines grad and laplacian with a flat prior
+
+#' R6 Cauchy Distribution
+#'
+#' @description Distribution Info for sampling from cauchy distribution, inherits from Data
+#' Defines grad and laplacian with a flat prior
+#'
+#' @field mu location parameter
+#' @field gamma scale parameter
+#'
+#' @export
 CauchyData <- R6::R6Class("CauchyData", inherit = Data,
     public = list(
     mu = 0,
     gamma = 1,
+    #' @description Cauchy PDF
+    #'
+    #' @param x Parameters of pdf
     pi = function(x) {
         exp(pi_ll(x))
     },
+    #' @description Log Likelihood of Cauchy Distribution
+    #'
+    #' @param x Parameters of ll
+    #' @param i not needed
     pi_ll = function(x) {
         -log(pi * self$gamma) - log(1 + self$cauchy_scale(x, self$mu, self$gamma)^2)
     },
-    grad_ll = function(x, i) { # Grad ll for cauchy
+    #' @description Gradient of Log Likelihood of Cauchy Distribution
+    #'
+    #' @param x Parameters of grad ll
+    #' @param i not needed
+    grad_ll = function(x, i=NA) { # Grad ll for cauchy
         if (i == 0) return(0)
 
         - 2 * (x - self$mu) / ((x - self$mu)^2 + self$gamma^2)
     },
-    lap_ll = function(x, i) { # Laplacian ll for cauchy
+    #' @description Laplacian of Log Likelihood of Cauchy Distribution
+    #'
+    #' @param x Parameters of lap ll
+    #' @param i not needed
+    lap_ll = function(x, i=NA) { # Laplacian ll for cauchy
         if (i == 0) return(0)
         t <- self$cauchy_scale(x, self$mu, self$gamma)
         2 * (t^2 - 1) / ((t^2 + 1) * ((x - self$mu)^2 + self$gamma^2))
     },
+    #' @description Cauchy Constructor
+    #'
+    #' @param mu Location Parameter
+    #' @param gamma Positive Scale Parameter
     initialize = function(mu, gamma) { # Initialising cauchy dist class
         self$mu <- mu
         self$gamma <- gamma
@@ -146,9 +173,18 @@ CauchyData <- R6::R6Class("CauchyData", inherit = Data,
         super$initialize(n = 1, d = 1, x_hat = self$mu, hessian_bound = 1 / (4 * gamma^2))
         invisible(self)
     },
+    #' @description Cauchy Scale Helper Function
+    #'
+    #' @param x Parameter
+    #' @param mu Location Parameter
+    #' @param gamma Positive Scale Parameter
     cauchy_scale = function(x, mu, gamma)  { # Scaling helper function
         (x - mu) / gamma
     },
+    #' @description Exact bounds on phi
+    #'
+    #' @param x.l Lower Bound
+    #' @param x.u Upper Bounds
     phi_bounds_exact = function(x.l, x.u) { # Exact Phi Bounds
         b1 <- self$phi(x.l)
         b2 <- self$phi(x.u)

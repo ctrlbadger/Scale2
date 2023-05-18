@@ -16,7 +16,7 @@ test_that("Cauchy Centered", {
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
                         ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Cauchy Scaled", {
@@ -37,7 +37,7 @@ test_that("Cauchy Scaled", {
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
                         ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Cauchy Resample", {
@@ -58,7 +58,7 @@ test_that("Cauchy Resample", {
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
                         ess_thresh = 1, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 
 })
 
@@ -79,7 +79,7 @@ test_that("Normal Rescale Sampled", {
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = theta, num_meshes = iterations, kill_time = kill_time, data = dist_data,
                       ess_thresh = 00, resample_every = Inf, rescale = rescale, subsample = subsample)
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Normal Rescale Unsampled", {
@@ -99,7 +99,7 @@ test_that("Normal Rescale Unsampled", {
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = theta, num_meshes = iterations, kill_time = kill_time, data = dist_data,
                       ess_thresh = 00, resample_every = Inf, rescale = rescale, subsample = subsample)
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 })
 
 
@@ -122,7 +122,7 @@ test_that("GLM Normal Rescale Sampled", {
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = theta, num_meshes = iterations, kill_time = kill_time, data = glm_normal_data,
                       ess_thresh = 00, resample_every = Inf, rescale = rescale, subsample = subsample) %>% invisible()
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Bivariate GLM Normal Rescale Unsampled", {
@@ -158,7 +158,7 @@ test_that("Bivariate GLM Normal Rescale Sampled", {
   set.seed(150)
   SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = bi_normal,
                       ess_thresh = 0, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 
 
   ### TODO: PLOT MULTIDIMENSIONAL BETA PLOTS
@@ -185,7 +185,7 @@ test_that("Bivariate Binomial Normal Rescale Sampled", {
   set.seed(150)
   SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = binomial_data,
                       ess_thresh = 0, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 
 })
 
@@ -207,6 +207,6 @@ test_that("Bivariate Binomial Normal Rescale Unsampled", {
   set.seed(150)
   SCALE_info <- SCALE(num_particles = num_particles, d = 2, theta = theta, num_meshes = iterations, kill_time = kill_time, data = binomial_data,
                       ess_thresh = 0, resample_every = Inf, rescale = rescale, subsample = subsample, print_updates = TRUE)
-  expect_snapshot(SCALE_info)
+  expect_snapshot(SCALE_info$debug_hist)
 
 })

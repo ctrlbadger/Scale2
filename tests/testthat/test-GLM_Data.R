@@ -1,5 +1,4 @@
 phi_plot_3d <- function(dist_data) {
-  library(plotly)
   lim_max <- 2
   lim_length <- 100
 
@@ -27,13 +26,13 @@ phi_plot_3d <- function(dist_data) {
 
 
 
-  fig <- plot_ly(
+  fig <- plotly::plot_ly(
     x = ~beta_1,
     y = ~beta_2,
   ) %>%
-    add_surface(z = ~z_phi) %>%
-    add_surface(z = ~z_ub) %>%
-    add_surface(z = ~z_lb)
+    plotly::add_surface(z = ~z_phi) %>%
+    plotly::add_surface(z = ~z_ub) %>%
+    plotly::add_surface(z = ~z_lb)
 
   fig
 }

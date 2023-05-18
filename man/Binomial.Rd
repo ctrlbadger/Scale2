@@ -14,6 +14,13 @@ binomial_data <- Binomial$new(y = y, x = x)
 \section{Super classes}{
 \code{Scale2::Data} -> \code{Scale2::GLM} -> \code{Binomial}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{dispersion}}{The dispersion perameter of the Binomial Model}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -26,8 +33,6 @@ binomial_data <- Binomial$new(y = y, x = x)
 \item \href{#method-Binomial-lap_ll}{\code{Binomial$lap_ll()}}
 \item \href{#method-Binomial-grad_ll}{\code{Binomial$grad_ll()}}
 \item \href{#method-Binomial-fisher_information}{\code{Binomial$fisher_information()}}
-\item \href{#method-Binomial-pi_actual}{\code{Binomial$pi_actual()}}
-\item \href{#method-Binomial-pi_observed}{\code{Binomial$pi_observed()}}
 \item \href{#method-Binomial-new}{\code{Binomial$new()}}
 \item \href{#method-Binomial-clone}{\code{Binomial$clone()}}
 }
@@ -61,109 +66,179 @@ binomial_data <- Binomial$new(y = y, x = x)
 \if{html}{\out{<a id="method-Binomial-unit_deviance"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-unit_deviance}{}}}
 \subsection{Method \code{unit_deviance()}}{
+The unit deviance of a binomial model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$unit_deviance(mu, y)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+
+\item{\code{y}}{Dependent variable y}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-v"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-v}{}}}
 \subsection{Method \code{v()}}{
+Variance Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$v(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-link"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-link}{}}}
 \subsection{Method \code{link()}}{
+Link Function g(mu) = eta
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-grad_link"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-grad_link}{}}}
 \subsection{Method \code{grad_link()}}{
+Derivative of Link Function g(mu) = eta
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$grad_link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-grad2_link"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-grad2_link}{}}}
 \subsection{Method \code{grad2_link()}}{
+Second derivative of Link Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$grad2_link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-logistic"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-logistic}{}}}
 \subsection{Method \code{logistic()}}{
+Logistic Function - Inverse of Link Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$logistic(eta)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{eta}}{Eta. Inverse of value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-lap_ll"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-lap_ll}{}}}
 \subsection{Method \code{lap_ll()}}{
+Laplacian of log likelihood at datum i
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$lap_ll(beta, i)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{- Unkown parameter $\beta$}
+
+\item{\code{i}}{- Index of data matrix}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-grad_ll"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-grad_ll}{}}}
 \subsection{Method \code{grad_ll()}}{
+Gradient of log likelihood at datum i
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$grad_ll(beta, i)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{- Unkown parameter $\beta$}
+
+\item{\code{i}}{- Index of data matrix}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-fisher_information"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-fisher_information}{}}}
 \subsection{Method \code{fisher_information()}}{
+Estimated Fisher Information for datum i
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$fisher_information(i)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{i}}{- Index of data matrix}
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Binomial-pi_actual"></a>}}
-\if{latex}{\out{\hypertarget{method-Binomial-pi_actual}{}}}
-\subsection{Method \code{pi_actual()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Binomial$pi_actual(x)}\if{html}{\out{</div>}}
+\if{html}{\out{</div>}}
 }
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Binomial-pi_observed"></a>}}
-\if{latex}{\out{\hypertarget{method-Binomial-pi_observed}{}}}
-\subsection{Method \code{pi_observed()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Binomial$pi_observed(x)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Binomial-new}{}}}
 \subsection{Method \code{new()}}{
+Initialise Binomial Data Model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Binomial$new(y, x)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{y}}{Numeric vector length n. Dependent variables y}
+
+\item{\code{x}}{Matrix of dimension n x d.  Response variables x}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Binomial-clone"></a>}}

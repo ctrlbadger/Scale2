@@ -118,12 +118,12 @@
           div_alpha: function (x) 
           div_alpha_subsample: function (x, i) 
           gamma: 1
-          grad_ll: function (x, i) 
+          grad_ll: function (x, i = NA) 
           hessian_bound: 0.25
           initialize: function (mu, gamma) 
           inv_lambda: 4
           lambda: 0.25
-          lap_ll: function (x, i) 
+          lap_ll: function (x, i = NA) 
           mu: 0
           n: 1
           phi: function (x) 
@@ -162,12 +162,12 @@
           div_alpha: function (x) 
           div_alpha_subsample: function (x, i) 
           gamma: 1
-          grad_ll: function (x, i) 
+          grad_ll: function (x, i = NA) 
           hessian_bound: 0.25
           initialize: function (mu, gamma) 
           inv_lambda: 4
           lambda: 0.25
-          lap_ll: function (x, i) 
+          lap_ll: function (x, i = NA) 
           mu: 0
           n: 1
           phi: function (x) 

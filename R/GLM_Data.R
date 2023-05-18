@@ -1,6 +1,3 @@
-
-binomial()
-
 GLM <- R6::R6Class("GLM", inherit = Data,
     public = list(
     dispersion = NULL,
@@ -12,11 +9,6 @@ GLM <- R6::R6Class("GLM", inherit = Data,
     log_pi_observed = function(beta) {
       sum(map_dbl(1:self$n, ~ self$log_pi_observed_i(beta, .x)))
     },
-    unit_deviance = function(mu, y) {
-
-    },
-    v = function(mu) { # Variance Function
-    },
     log_pi_observed_i = function(beta, i) {
       y <- self$data_y[i]
       x <- self$data_x[i, ]
@@ -26,22 +18,8 @@ GLM <- R6::R6Class("GLM", inherit = Data,
 
       -0.5*self$dispersion * self$unit_deviance(mu, y)
     },
-    link = function(mu) { # g(mu) = eta
-
-    },
-    grad_link = function(mu) {
-    },
-    grad2_link = function(mu) {
-    },
-    logistic = function(eta) { # mu = g^-1(eta)
-    },
     eta = function(beta, x) {
       sum(beta * x)
-    },
-    pi_actual = function(x) {
-
-    },
-    pi_observed = function(x) {
     },
     grad_ll = function(beta, i) {
       if (i == 0) return(rep(0, self$d))
@@ -109,6 +87,27 @@ GLM <- R6::R6Class("GLM", inherit = Data,
         if (is.null(self$lambda)) self$get_preconditioning_matrix()
         super$initialize(n, d)
     }
+    ),
+    private = list(
+      link = function(mu) { # g(mu) = eta
+
+      },
+      grad_link = function(mu) {
+      },
+      grad2_link = function(mu) {
+      },
+      logistic = function(eta) { # mu = g^-1(eta)
+      },
+      unit_deviance = function(mu, y) {
+
+      },
+      v = function(mu) { # Variance Function
+      },
+      pi_actual = function(x) {
+
+      },
+      pi_observed = function(x) {
+      }
     )
 )
 
@@ -120,32 +119,47 @@ GLM <- R6::R6Class("GLM", inherit = Data,
 #' @export
 Normal <- R6::R6Class("Normal", inherit = GLM,
     public = list(
-    dispersion = NULL,
-    offset = 0,
-    weights = NULL,
+    #' @description The unit deviance of a Normal model
+    #'
+    #' @param mu Mean value mu
+    #' @param y Dependent variable y
     unit_deviance = function(mu, y) {
       (y - mu)^2
     },
+    #' @description Variance Function
+    #'
+    #' @param mu Mean value mu
     v = function(mu) { # Variance Function
       1
     },
+    #' @description Link Function g(mu) = eta
+    #'
+    #' @param mu Mean value mu
     link = function(mu) { # g(mu) = eta
       mu
     },
+    #' @description Derivative of Link Function g(mu) = eta
+    #'
+    #' @param mu Mean value mu
     grad_link = function(mu) {
       1
     },
+    #' @description Second derivative of Link Function
+    #'
+    #' @param mu Mean value mu
     grad2_link = function(mu) {
       0
     },
+    #' @description Logistic Function - Inverse of Link Function
+    #'
+    #' @param eta Eta. Inverse of value mu
     logistic = function(eta) { # mu = g^-1(eta)
       eta
     },
-    pi_actual = function(x) {
-
-    },
-    pi_observed = function(x) {
-    },
+    #' @description Laplacian of log likelihood at datum i
+    #'
+    #' @param beta - Unkown parameter $\beta$
+    #' @param i - Index of data matrix
     lap_ll = function(beta, i) {
       if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
@@ -155,6 +169,10 @@ Normal <- R6::R6Class("Normal", inherit = GLM,
       f1 <- -self$prior_weights[i]  / (self$dispersion * self$v(mu) * self$grad_link(mu)^2) * x * x
       f1
     },
+    #' @description Initialise Normal Data Model
+    #'
+    #' @param y Numeric vector length n. Dependent variables y
+    #' @param x Matrix of dimension n x d.  Response variables x
     initialize = function(y, x) {
       self$data_y <- y
       self$data_x <- as.matrix(x)
@@ -174,12 +192,20 @@ Normal <- R6::R6Class("Normal", inherit = GLM,
       super$initialize(self$n, self$d)
       invisible(self)
     }
+  ),
+  private = list(
+    dispersion = 1,
+    pi_actual = function(x) {
+
+    },
+    pi_observed = function(x) {
+    }
   )
 )
 
 #' Binomial R6 Class for Scale
 #' @description A logistic regression model using a GLM framework for the scale model.
-#'
+#' @field dispersion The dispersion perameter of the Binomial Model
 #' @examples
 #' list2env(small_logistic_example, rlang::current_env())
 #' model_glm <- glm(y ~ x - 1, family = binomial)
@@ -188,26 +214,48 @@ Normal <- R6::R6Class("Normal", inherit = GLM,
 Binomial <- R6::R6Class("Binomial", inherit = GLM,
     public = list(
     dispersion = 1,
-    offset = 0,
-    weights = NULL,
+
+    #' @description The unit deviance of a binomial model
+    #'
+    #' @param mu Mean value mu
+    #' @param y Dependent variable y
     unit_deviance = function(mu, y) {
       2*(log(y/mu) + (1-y)*log((1-y)/(1-mu)))
     },
+    #' @description Variance Function
+    #'
+    #' @param mu Mean value mu
     v = function(mu) { # Variance Function
       mu * (1 - mu)
     },
+    #' @description Link Function g(mu) = eta
+    #'
+    #' @param mu Mean value mu
     link = function(mu) { # g(mu) = eta
       log(mu / (1 - mu))
     },
+    #' @description Derivative of Link Function g(mu) = eta
+    #'
+    #' @param mu Mean value mu
     grad_link = function(mu) {
       1 / (mu - mu^2)
     },
+    #' @description Second derivative of Link Function
+    #'
+    #' @param mu Mean value mu
     grad2_link = function(mu) {
       (2*mu - 1) / ((mu - 1)^2 * mu^2)
     },
+    #' @description Logistic Function - Inverse of Link Function
+    #'
+    #' @param eta Eta. Inverse of value mu
     logistic = function(eta) { # mu = g^-1(eta)
       exp(eta) / (1 + exp(eta))
     },
+    #' @description Laplacian of log likelihood at datum i
+    #'
+    #' @param beta - Unkown parameter $\beta$
+    #' @param i - Index of data matrix
     lap_ll = function(beta, i) {
       if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
@@ -220,6 +268,10 @@ Binomial <- R6::R6Class("Binomial", inherit = GLM,
       f2 <- 0
       f1 + f2
     },
+    #' @description Gradient of log likelihood at datum i
+    #'
+    #' @param beta - Unkown parameter $\beta$
+    #' @param i - Index of data matrix
     grad_ll = function(beta, i) {
       if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
@@ -230,6 +282,9 @@ Binomial <- R6::R6Class("Binomial", inherit = GLM,
       if (mu == 1 || mu == 0) return(rep(0, self$d))
       else (y - mu) * (self$prior_weights[i] * x) / (self$dispersion * self$v(mu) * self$grad_link(mu))
     },
+    #' @description Estimated Fisher Information for datum i
+    #'
+    #' @param i - Index of data matrix
     fisher_information = function(i) { # Fisher information
       if (i == 0) return(rep(0, self$d))
       y <- self$data_y[i]
@@ -239,11 +294,10 @@ Binomial <- R6::R6Class("Binomial", inherit = GLM,
       if (mu == 1 || mu == 0) return(rep(0, self$d))
       else self$prior_weights[i] * x^2 / (self$dispersion * self$v(mu) * self$grad_link(mu)^2)
     },
-    pi_actual = function(x) {
-
-    },
-    pi_observed = function(x) {
-    },
+    #' @description Initialise Binomial Data Model
+    #'
+    #' @param y Numeric vector length n. Dependent variables y
+    #' @param x Matrix of dimension n x d.  Response variables x
     initialize = function(y, x) {
       self$data_y <- y
       self$data_x <- as.matrix(x)
@@ -257,6 +311,13 @@ Binomial <- R6::R6Class("Binomial", inherit = GLM,
 
       super$initialize(self$n, self$d)
       invisible(self)
+    }
+  ),
+  private = list(
+    pi_actual = function(x) {
+
+    },
+    pi_observed = function(x) {
     }
   )
 )

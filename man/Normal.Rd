@@ -22,8 +22,6 @@ bi_normal <- Normal$new(y, x)
 \item \href{#method-Normal-grad_link}{\code{Normal$grad_link()}}
 \item \href{#method-Normal-grad2_link}{\code{Normal$grad2_link()}}
 \item \href{#method-Normal-logistic}{\code{Normal$logistic()}}
-\item \href{#method-Normal-pi_actual}{\code{Normal$pi_actual()}}
-\item \href{#method-Normal-pi_observed}{\code{Normal$pi_observed()}}
 \item \href{#method-Normal-lap_ll}{\code{Normal$lap_ll()}}
 \item \href{#method-Normal-new}{\code{Normal$new()}}
 \item \href{#method-Normal-clone}{\code{Normal$clone()}}
@@ -60,91 +58,143 @@ bi_normal <- Normal$new(y, x)
 \if{html}{\out{<a id="method-Normal-unit_deviance"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-unit_deviance}{}}}
 \subsection{Method \code{unit_deviance()}}{
+The unit deviance of a Normal model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$unit_deviance(mu, y)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+
+\item{\code{y}}{Dependent variable y}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-v"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-v}{}}}
 \subsection{Method \code{v()}}{
+Variance Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$v(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-link"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-link}{}}}
 \subsection{Method \code{link()}}{
+Link Function g(mu) = eta
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-grad_link"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-grad_link}{}}}
 \subsection{Method \code{grad_link()}}{
+Derivative of Link Function g(mu) = eta
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$grad_link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-grad2_link"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-grad2_link}{}}}
 \subsection{Method \code{grad2_link()}}{
+Second derivative of Link Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$grad2_link(mu)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean value mu}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-logistic"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-logistic}{}}}
 \subsection{Method \code{logistic()}}{
+Logistic Function - Inverse of Link Function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$logistic(eta)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{eta}}{Eta. Inverse of value mu}
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Normal-pi_actual"></a>}}
-\if{latex}{\out{\hypertarget{method-Normal-pi_actual}{}}}
-\subsection{Method \code{pi_actual()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Normal$pi_actual(x)}\if{html}{\out{</div>}}
+\if{html}{\out{</div>}}
 }
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Normal-pi_observed"></a>}}
-\if{latex}{\out{\hypertarget{method-Normal-pi_observed}{}}}
-\subsection{Method \code{pi_observed()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Normal$pi_observed(x)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-lap_ll"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-lap_ll}{}}}
 \subsection{Method \code{lap_ll()}}{
+Laplacian of log likelihood at datum i
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$lap_ll(beta, i)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{- Unkown parameter $\beta$}
+
+\item{\code{i}}{- Index of data matrix}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Normal-new}{}}}
 \subsection{Method \code{new()}}{
+Initialise Normal Data Model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Normal$new(y, x)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{y}}{Numeric vector length n. Dependent variables y}
+
+\item{\code{x}}{Matrix of dimension n x d.  Response variables x}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Normal-clone"></a>}}
