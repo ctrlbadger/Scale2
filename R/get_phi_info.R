@@ -1,5 +1,5 @@
 # Gets subsampling functions, phi and lower and upper bounds for given hypercube
-get_phi_info <- function(data, path_l, path_u, rescale = TRUE, subsample = FALSE) {
+get_phi_info <- function(data, path_l, path_u, rescale, subsample) {
   if (c("CauchyData" %in% class(data))) {
     if (rescale) {
       path_l <- data$x_unscale(path_l)
@@ -20,7 +20,7 @@ get_phi_info <- function(data, path_l, path_u, rescale = TRUE, subsample = FALSE
 
   if (rescale) x_transf <- function(x) data$x_unscale(x)
   else x_transf <- function(x) x
-  #print(paste("RESCALE", rescale))
+  # print(paste("RESCALE", rescale))
   A = NULL
   if (subsample) {
     # Get Sample Points

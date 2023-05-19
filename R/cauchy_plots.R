@@ -4,7 +4,16 @@ cauchy.pi <- function(x, cauchy.x_0=0, cauchy.gamma=1) {
   (3.1415 * cauchy.gamma * (1 + cauchy.scale(x, cauchy.x_0, cauchy.gamma)^2))^-1
 }
 
-cauchy_density_path <- function(path_hist, weight_hist, debug_hist, idx = seq_along(debug_hist), cauchy.x_0, cauchy.gamma) {
+#' Cauchy Kernel Density of Chain
+#'
+#' @param debug_hist debug_hist list from SCALE Function
+#' @param idx Index of mesh points to display
+#' @param cauchy.x_0 Location Parameter of Cauchy Target
+#' @param cauchy.gamma Scale Parameter of Cauchy Target
+#'
+#' @return
+#' @export
+cauchy_density_path <- function(debug_hist, idx = seq_along(debug_hist), cauchy.x_0, cauchy.gamma) {
   text.res <- 10000
   x_lap <- seq(from = -15, to = 15, length.out = text.res)
   y_lap <- cauchy.pi(x_lap, cauchy.x_0, cauchy.gamma)
@@ -23,6 +32,15 @@ cauchy_density_path <- function(path_hist, weight_hist, debug_hist, idx = seq_al
 
 }
 
+#' Show Kernel Density Estimate
+#'
+#' @param debug_hist debug_hist list from SCALE Function
+#' @param idx Index of mesh points to display
+#' @param cauchy.x_0 Location parameter of Cauchy Target
+#' @param cauchy.gamma Scale Parameter of Cauchy Target
+#'
+#' @return
+#' @export
 cauchy_density_estimate <- function(debug_hist, idx = seq_along(debug_hist), cauchy.x_0, cauchy.gamma) {
   text.res <- 10000
   x_lap <- seq(from = -15, to = 15, length.out = text.res)
@@ -40,7 +58,7 @@ cauchy_density_estimate <- function(debug_hist, idx = seq_along(debug_hist), cau
 
   ggplot() +
     geom_density(data = debug_trbl, aes(x = path_curr, weight = norm_weight), alpha = 0.2) +
-    geom_line(data = cauchy_trbl, aes(x = x_lap, y = y_lap), linewidth = 1)
+    geom_line(data = cauchy_trbl, aes(x = x_lap, y = y_lap), linewidth = 1, linetype='dotted', color='red')
 }
 
 

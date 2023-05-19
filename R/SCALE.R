@@ -264,10 +264,10 @@ SCALE <- function(num_particles, d, theta, num_meshes, kill_time, data, ess_thre
       }
     }
     mesh_snapshot <- particle_snapshot(particles,
-                                        iter_counter = iter_counter,
-                                        incr_log_weight = incr_log_weight,
-                                        norm_weight = norm_weight, ess = ess, resample = resample,
-                                        mesh_idx = mesh_idx, mesh_time = mesh_times[mesh_idx], id = id)
+                                       iter_counter = iter_counter,
+                                       incr_log_weight = incr_log_weight,
+                                       norm_weight = norm_weight, ess = ess, resample = resample,
+                                       mesh_idx = mesh_idx, mesh_time = mesh_times[mesh_idx], id = id)
     mesh_hist[[length(mesh_hist) + 1]] <- mesh_snapshot
     if (print_updates) print(print_msg)
   }

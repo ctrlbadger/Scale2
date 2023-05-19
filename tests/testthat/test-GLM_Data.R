@@ -93,7 +93,7 @@ test_that("Normal GLM", {
     tbl <- tibble(beta_test, log_pi_observed_1, log_pi_observed) %>%
       pivot_longer(cols=-1, names_to="log_pi_method", values_to="log_y")
     ggplot(tbl, aes(x=beta_test, y=log_y, color = log_pi_method)) +
-        geom_line()
+      geom_line()
   }
 
   list2env(small_normal_n10_m5_s5, rlang::current_env())

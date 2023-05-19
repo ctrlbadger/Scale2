@@ -1,4 +1,15 @@
 
+#' Trace Path with ID's of Chain
+#'
+#' @param debug_hist debug_hist of chain
+#' @param idx Indexes of chain to show
+#' @param show_lines Logical. Show Lines
+#' @param show_points Logical. Show Points
+#' @param sample_particles Logical. Show ID's
+#' @param show_resample Logical. Show Resample Points
+#'
+#' @return
+#' @export
 id_trace_path <- function(debug_hist, idx = seq_along(debug_hist), show_lines = TRUE, show_points = TRUE, sample_particles = TRUE, show_resample = TRUE) {
 
   id <- map(debug_hist[idx], "id")
@@ -44,27 +55,43 @@ id_trace_path <- function(debug_hist, idx = seq_along(debug_hist), show_lines = 
     guides(color = "none", size="none")
 }
 
+#' ESS Plot of ScaLE
+#'
+#' @param SCALE_info ScaLE return object
+#' @param show_ess_thresh Logical. Show ESS threshold
+#'
+#' @return
+#' @export
 plot_ess <- function(SCALE_info, show_ess_thresh = FALSE) {
-    debug_hist <- SCALE_info$debug_hist
-    if (show_ess_thresh) {
-      ess_thresh <- SCALE_info$parameters$ess_thresh
-      resample_every <- SCALE_info$parameters$resample_every
-    }
-    # print(ess_thresh)
-    ess_tbl <- tibble(mesh_idx = seq_along(debug_hist),
+  debug_hist <- SCALE_info$debug_hist
+  if (show_ess_thresh) {
+    ess_thresh <- SCALE_info$parameters$ess_thresh
+    resample_every <- SCALE_info$parameters$resample_every
+  }
+  # print(ess_thresh)
+  ess_tbl <- tibble(mesh_idx = seq_along(debug_hist),
                     ess = map_dbl(debug_hist, "ess"),
                     resample =  as.factor(purrr::map_lgl(debug_hist, "resample")))
 
-    ess_plot <- ggplot(data=ess_tbl, aes(x = mesh_idx, y = ess, colour = resample)) +
-      ggplot2::geom_point()
+  ess_plot <- ggplot(data=ess_tbl, aes(x = mesh_idx, y = ess, colour = resample)) +
+    ggplot2::geom_point()
 
-    if (show_ess_thresh && (ess_thresh <= 1)) {
-      ess_plot <- ess_plot + ggplot2::geom_hline(yintercept = ess_thresh, linetype="longdash", linewidth=1)
-    }
+  if (show_ess_thresh && (ess_thresh <= 1)) {
+    ess_plot <- ess_plot + ggplot2::geom_hline(yintercept = ess_thresh, linetype="longdash", linewidth=1)
+  }
 
-    ess_plot
+  ess_plot
 }
 
+#' Trace Path of ScaLE
+#'
+#' @param debug_hist debug_hist list from SCALE return
+#' @param idx Index vector of chains to show
+#'
+#' @return
+#' @export
+#'
+#' @examples
 trace_path <- function(debug_hist, idx = seq_along(debug_hist)) {
   debug_trbl <- debug_hist[idx] %>%
     map(as_tibble) %>%
@@ -82,6 +109,14 @@ trace_path <- function(debug_hist, idx = seq_along(debug_hist)) {
 
 }
 
+#' Trace Path for GLM ScaLE Models
+#'
+#' @param SCALE_info SCALE return object
+#' @param idx Index of mesh points to show
+#' @param unscale Logical. Unscale Particles?
+#'
+#' @return
+#' @export
 GLM_trace_path <- function(SCALE_info, idx = seq_along(SCALE_info$debug_hist), unscale = TRUE) {
   list2env(SCALE_info, rlang::current_env())
   debug_trbl <- debug_hist[idx] %>%
@@ -99,13 +134,13 @@ GLM_trace_path <- function(SCALE_info, idx = seq_along(SCALE_info$debug_hist), u
 
   path_str <- ifelse(unscale, "rescaled_path_curr", "path_curr")
   debug_trbl <- map2(debug_hist[idx], idx, ~
-    tibble(beta = unlist((pluck(.x, path_str))),
-            beta_dim = factor(rep(1:d, num_particles)),
-            mesh_idx = factor(.y),
-            norm_weight = rep(pluck(.x , 'norm_weight'), each = d),
-            mesh_time = .x$mesh_time)) %>%
-            reduce(add_row) %>%
-            group_by(mesh_idx, beta_dim) %>% mutate(beta_average = mean(beta)) %>% dplyr::ungroup()
+                       tibble(beta = unlist((pluck(.x, path_str))),
+                              beta_dim = factor(rep(1:d, num_p)),
+                              mesh_idx = factor(.y),
+                              norm_weight = rep(pluck(.x , 'norm_weight'), each = d),
+                              mesh_time = .x$mesh_time)) %>%
+    reduce(add_row) %>%
+    group_by(mesh_idx, beta_dim) %>% mutate(beta_average = mean(beta)) %>% dplyr::ungroup()
 
   ggplot(debug_trbl) +
     ggplot2::geom_bin_2d(aes(x = mesh_time, y=beta)) +

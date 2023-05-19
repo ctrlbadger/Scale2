@@ -14,14 +14,14 @@ test_that("Cauchy Centered", {
   subsample <- FALSE
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
-                        ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
+                      ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
   expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Cauchy Scaled", {
   set.seed(150)
-    # Create data
+  # Create data
   mu <- -2
   gamma <- 5
 
@@ -35,13 +35,13 @@ test_that("Cauchy Scaled", {
   subsample <- FALSE
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
-                        ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
+                      ess_thresh = 0, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
   expect_snapshot(SCALE_info$debug_hist)
 })
 
 test_that("Cauchy Resample", {
-    # Create data
+  # Create data
   set.seed(150)
   mu <- 0
   gamma <- 1
@@ -56,7 +56,7 @@ test_that("Cauchy Resample", {
   subsample <- FALSE
 
   SCALE_info <- SCALE(num_particles = num_particles, d = 1, theta = 5, num_meshes = iterations, kill_time = kill_time, data = cauchy_data,
-                        ess_thresh = 1, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
+                      ess_thresh = 1, parallel = FALSE, resample_every = Inf, rescale = rescale, subsample = subsample)
 
   expect_snapshot(SCALE_info$debug_hist)
 

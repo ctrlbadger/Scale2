@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of Scale2 is to ...
+The intent of this project is to showcase, implement and empirically analyse the ScaLE algorithm, a continuous time, particle based, Markov Chain Monte Carlo method for sampling and performing interference on complex distributions in large N datasets. The `Scale2` package is developed and it's functionally explained, providing an implementation for `ScaLE` that is flexible & human-readable providing useful graphical methods for diagnosing convergence.
 
 ## Installation
 

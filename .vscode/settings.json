@@ -1,6 +1,0 @@
-{
-    "r.lsp.debug": true,
-    "r.plot.useHttpgd": true,
-    "r.rterm.windows": "C:\\Program Files\\R\\R-4.2.2\\bin\\R.exe",
-    "r.rpath.windows": "C:\\Program Files\\R\\R-4.2.2\\bin\\R.exe"
-}

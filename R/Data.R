@@ -1,4 +1,9 @@
 # Base Class for defining posterior distribution info and providing methods for subsampling the killing rate
+
+
+#' R6 Base Data Distribution
+#'
+#' @description Parent of R6 Data Objects that implements killing rate and boundedness funtions
 Data <- R6::R6Class("Data",
                 public = list(
                   n = 1L, # Data Size
@@ -7,9 +12,9 @@ Data <- R6::R6Class("Data",
                   inv_lambda = NULL, # Inverse of Preconditioning Matrix
                   hessian_bound = NULL, # Hessian Bound used in obtaining phi lower and upper bounds
                   x_hat = NULL, # Centering Control Variate
-                  x_hat_total_grad_ll = NULL,
-                  x_hat_total_lap_ll = NULL,
-                  x_hat_C = NULL,
+                  x_hat_total_grad_ll = NULL, # Centering Control Variate total grad_ll
+                  x_hat_total_lap_ll = NULL, # Centering Control Variate total lap_ll
+                  x_hat_C = NULL, # Centering Control Constant
                   x_hat_grad_ll_i = NULL,
                   x_hat_lap_ll_i = NULL,
                   x_hat_norm_2grad_log = NULL,
@@ -24,15 +29,19 @@ Data <- R6::R6Class("Data",
                     }
                     self$precalc_control_var(self$x_hat)
                   },
-                  grad_ll = function(x, idx) { }, # Grad log likelihood of posterior
-                  lap_ll = function(x, idx) { }, # Laplacian log likelihood of posterior
-                  total_grad_ll = function(x) { # Grad log likelihood over the full posterior returns an R^d vector
+                  #' @description Grad log likelihood over the full posterior returns an R^d vector
+                  #' @param x parameter numeric length d
+                  total_grad_ll = function(x) { #
                     Reduce("+", map(0:self$n, ~ self$grad_ll(x, .x)))
                   },
-                  total_lap_ll = function(x) { # Grad^2 log likelihood over the full posterior returns an R^d vector
+                  #' @description Grad^2 log likelihood over the full posterior returns an R^d vector
+                  #' @param x parameter numeric length d
+                  total_lap_ll = function(x) {
                     Reduce("+", map(0:self$n, ~ self$lap_ll(x, .x)))
                   },
-                  phi = function(x) { # Phi killing rate function over full posterior distribution
+                  #' @description Phi killing rate function over full posterior distribution
+                  #' @param x parameter numeric length d
+                  phi = function(x) {
                     ## ||grad(log(pi(x))) || ^ 2 equiv to sum of squared first derivatives of log(pi(x))
                     grad_ll <- self$total_grad_ll(x)
                     sqrd_norm_grad_ll <- sum(grad_ll^2)
@@ -42,10 +51,16 @@ Data <- R6::R6Class("Data",
 
                     0.5 * (sqrd_norm_grad_ll + sum_lap_ll)
                   },
-                  phi_control_var = function(x) { # Alternative phi function using x_hat
+                  #' @description Alternative phi function using x_hat
+                  #' @param x parameter numeric length d
+                  phi_control_var = function(x) {
                     t(self$alpha(x)) %*% as.matrix(2*self$total_grad_ll(self$x_hat) + self$alpha(x)) / 2 +
                       self$div_alpha(x) / 2 + self$x_hat_C |> as.double()
                   },
+                  #' @description Phi Estimator sampling from datum indexes i, j
+                  #' @param x parameter numeric length d
+                  #' @param i Datum index i
+                  #' @param j Datum index j
                   phi_estimator = function(x, i, j) { # Phi estimator for a subsampling mechanism of size two
                     a_i <- self$alpha_subsample(x, i)
                     a_j <- self$alpha_subsample(x, j)
@@ -110,6 +125,10 @@ Data <- R6::R6Class("Data",
                   x_scale = function(x) { # Centers around 0 and preconditions by inv_lambda
                     c(self$inv_lambda %*% as.matrix(x - self$x_hat))
                   }
+                ),
+                private = list(
+                  grad_ll = function(x, idx) { }, # Grad log likelihood of posterior
+                  lap_ll = function(x, idx) { } # Laplacian log likelihood of posterior
                 )
 )
 
@@ -124,184 +143,185 @@ Data <- R6::R6Class("Data",
 #'
 #' @export
 CauchyData <- R6::R6Class("CauchyData", inherit = Data,
-    public = list(
-    mu = 0,
-    gamma = 1,
-    #' @description Cauchy PDF
-    #'
-    #' @param x Parameters of pdf
-    pi = function(x) {
-        exp(pi_ll(x))
-    },
-    #' @description Log Likelihood of Cauchy Distribution
-    #'
-    #' @param x Parameters of ll
-    #' @param i not needed
-    pi_ll = function(x) {
-        -log(pi * self$gamma) - log(1 + self$cauchy_scale(x, self$mu, self$gamma)^2)
-    },
-    #' @description Gradient of Log Likelihood of Cauchy Distribution
-    #'
-    #' @param x Parameters of grad ll
-    #' @param i not needed
-    grad_ll = function(x, i=NA) { # Grad ll for cauchy
-        if (i == 0) return(0)
+                          public = list(
+                            mu = 0,
+                            gamma = 1,
+                            #' @description Cauchy PDF
+                            #'
+                            #' @param x Parameters of pdf
+                            pi = function(x) {
+                              exp(pi_ll(x))
+                            },
+                            #' @description Log Likelihood of Cauchy Distribution
+                            #'
+                            #' @param x Parameters of ll
+                            #' @param i not needed
+                            pi_ll = function(x) {
+                              -log(pi * self$gamma) - log(1 + self$cauchy_scale(x, self$mu, self$gamma)^2)
+                            },
+                            #' @description Gradient of Log Likelihood of Cauchy Distribution
+                            #'
+                            #' @param x Parameters of grad ll
+                            #' @param i not needed
+                            grad_ll = function(x, i=NA) { # Grad ll for cauchy
+                              if (i == 0) return(0)
 
-        - 2 * (x - self$mu) / ((x - self$mu)^2 + self$gamma^2)
-    },
-    #' @description Laplacian of Log Likelihood of Cauchy Distribution
-    #'
-    #' @param x Parameters of lap ll
-    #' @param i not needed
-    lap_ll = function(x, i=NA) { # Laplacian ll for cauchy
-        if (i == 0) return(0)
-        t <- self$cauchy_scale(x, self$mu, self$gamma)
-        2 * (t^2 - 1) / ((t^2 + 1) * ((x - self$mu)^2 + self$gamma^2))
-    },
-    #' @description Cauchy Constructor
-    #'
-    #' @param mu Location Parameter
-    #' @param gamma Positive Scale Parameter
-    initialize = function(mu, gamma) { # Initialising cauchy dist class
-        self$mu <- mu
-        self$gamma <- gamma
+                              - 2 * (x - self$mu) / ((x - self$mu)^2 + self$gamma^2)
+                            },
+                            #' @description Laplacian of Log Likelihood of Cauchy Distribution
+                            #'
+                            #' @param x Parameters of lap ll
+                            #' @param i not needed
+                            lap_ll = function(x, i=NA) { # Laplacian ll for cauchy
+                              if (i == 0) return(0)
+                              t <- self$cauchy_scale(x, self$mu, self$gamma)
+                              2 * (t^2 - 1) / ((t^2 + 1) * ((x - self$mu)^2 + self$gamma^2))
+                            },
+                            #' @description Cauchy Constructor
+                            #'
+                            #' @param mu Location Parameter
+                            #' @param gamma Positive Scale Parameter
+                            initialize = function(mu, gamma) { # Initialising cauchy dist class
+                              self$mu <- mu
+                              self$gamma <- gamma
 
 
-        self$lambda <- 1 / (4 * self$gamma^2)
-        self$inv_lambda <- solve(self$lambda)
+                              self$lambda <- 1 / (4 * self$gamma^2)
+                              self$inv_lambda <- solve(self$lambda)
 
-        super$initialize(n = 1, d = 1, x_hat = self$mu, hessian_bound = 1 / (4 * gamma^2))
-        invisible(self)
-    },
-    #' @description Cauchy Scale Helper Function
-    #'
-    #' @param x Parameter
-    #' @param mu Location Parameter
-    #' @param gamma Positive Scale Parameter
-    cauchy_scale = function(x, mu, gamma)  { # Scaling helper function
-        (x - mu) / gamma
-    },
-    #' @description Exact bounds on phi
-    #'
-    #' @param x.l Lower Bound
-    #' @param x.u Upper Bounds
-    phi_bounds_exact = function(x.l, x.u) { # Exact Phi Bounds
-        b1 <- self$phi(x.l)
-        b2 <- self$phi(x.u)
 
-        phiU <- max(c(b1, b2))
-        phiL <- min(c(b1, b2))
+                              super$initialize(n = 1, d = 1, x_hat = self$mu, hessian_bound = 1 / (4 * gamma^2))
+                              invisible(self)
+                            },
+                            #' @description Cauchy Scale Helper Function
+                            #'
+                            #' @param x Parameter
+                            #' @param mu Location Parameter
+                            #' @param gamma Positive Scale Parameter
+                            cauchy_scale = function(x, mu, gamma)  { # Scaling helper function
+                              (x - mu) / gamma
+                            },
+                            #' @description Exact bounds on phi
+                            #'
+                            #' @param x.l Lower Bound
+                            #' @param x.u Upper Bounds
+                            phi_bounds_exact = function(x.l, x.u) { # Exact Phi Bounds
+                              b1 <- self$phi(x.l)
+                              b2 <- self$phi(x.u)
 
-        if ((x.l < self$mu) && (self$mu < x.u)) {
-            phiL <- self$phi(self$mu)
-        }
+                              phiU <- max(c(b1, b2))
+                              phiL <- min(c(b1, b2))
 
-        phi.max <- -sqrt( 5/3)*self$gamma + self$mu
+                              if ((x.l < self$mu) && (self$mu < x.u)) {
+                                phiL <- self$phi(self$mu)
+                              }
 
-        if ((x.l < phi.max) && (phi.max < x.u)) {
-            phiU <- self$phi(phi.max)
-        }
+                              phi.max <- -sqrt( 5/3)*self$gamma + self$mu
 
-        phi.max <- phi.max <- sqrt(5/3)*self$gamma + self$mu
-        if ((x.l < phi.max) && (phi.max < x.u)) {
-            phiU <- self$phi(phi.max)
-        }
+                              if ((x.l < phi.max) && (phi.max < x.u)) {
+                                phiU <- self$phi(phi.max)
+                              }
 
-        return(list(phi_u = phiU, phi_l = phiL, intensity = phiU - phiL))
-    }
-    )
+                              phi.max <- phi.max <- sqrt(5/3)*self$gamma + self$mu
+                              if ((x.l < phi.max) && (phi.max < x.u)) {
+                                phiU <- self$phi(phi.max)
+                              }
+                              # return(list(phi_u = 9/16, phi_l = -1, intensity = 9/16 - (-1)))
+                              return(list(phi_u = phiU, phi_l = phiL, intensity = phiU - phiL))
+                            }
+                          )
 )
 
 # Only mu normal data example
 MeanNormalData <- R6::R6Class("MeanNormalData", inherit = Data,
-    public = list(
-    data_x = 0, # Vector of means for each normal datum i
-    sigma_est = 0, # Estimated standard deviation
-    constant_pi_observed = 1, # Normalising Constants for log posterior
-    constant_pi_actual = 1,
-    mu_true = NULL, # Optional true mean
-    sigma_true = NULL, # Optional true sd
-    log_pi_actual = function(x) {
-        log(self$pi_actual(x))
-    },
-    log_pi_observed = function(x) {
-        log(self$pi_observed(x))
-    },
-    pi_actual = function(x) {
-        exp(self$n * dnorm(x, mean = self$mu_true, sd=self$sigma_true, log = TRUE)) / self$constant_pi_actual
-    },
-    pi_observed = function(x) {
-        exp(sum(map_dbl(self$data_x, ~ dnorm(.x, mean = x, sd = self$sigma_est, log = TRUE))) %>% sum()) / self$constant_pi_observed
-    },
-    grad_ll = function(x, i) {
-        if (i == 0) return(0)
+                              public = list(
+                                data_x = 0, # Vector of means for each normal datum i
+                                sigma_est = 0, # Estimated standard deviation
+                                constant_pi_observed = 1, # Normalising Constants for log posterior
+                                constant_pi_actual = 1,
+                                mu_true = NULL, # Optional true mean
+                                sigma_true = NULL, # Optional true sd
+                                log_pi_actual = function(x) {
+                                  log(self$pi_actual(x))
+                                },
+                                log_pi_observed = function(x) {
+                                  log(self$pi_observed(x))
+                                },
+                                pi_actual = function(x) {
+                                  exp(self$n * dnorm(x, mean = self$mu_true, sd=self$sigma_true, log = TRUE)) / self$constant_pi_actual
+                                },
+                                pi_observed = function(x) {
+                                  exp(sum(map_dbl(self$data_x, ~ dnorm(.x, mean = x, sd = self$sigma_est, log = TRUE))) %>% sum()) / self$constant_pi_observed
+                                },
+                                grad_ll = function(x, i) {
+                                  if (i == 0) return(0)
 
-        mu_comp <- (self$data_x[i] - x[1]) / self$sigma_est^2
-        sigma_comp <- 1 / x[2] + (self$data_x[i] - x[1])^2 * self$sigma_est^(-3)
+                                  mu_comp <- (self$data_x[i] - x[1]) / self$sigma_est^2
+                                  sigma_comp <- 1 / x[2] + (self$data_x[i] - x[1])^2 * self$sigma_est^(-3)
 
-        return(c(mu_comp))
-    },
-    lap_ll = function(x, i) {
-        if (i == 0) return(0)
+                                  return(c(mu_comp))
+                                },
+                                lap_ll = function(x, i) {
+                                  if (i == 0) return(0)
 
-        mu_comp <- - self$sigma_est^-2
-        sigma_comp <- -self$sigma_est^-2 - 3 * (self$data_x[i] - self$sigma_est)^2 * x[2]^-4
+                                  mu_comp <- - self$sigma_est^-2
+                                  sigma_comp <- -self$sigma_est^-2 - 3 * (self$data_x[i] - self$sigma_est)^2 * x[2]^-4
 
-        return(c(mu_comp))
-    },
-    fisher_information = function() { # Fisher information
-        diag(c(self$sigma_est^-2, 4 * self$sigma_est^-2))
-    },
-    hessian_ll_i = function(i) { # Hessian log likelihood for datum i
-        diag(c(-self$sigma_est^-2, -self$sigma_est^-2 - 3 * (self$data_x[i] - self$x_hat)^2*self$sigma_est^(-4)))
-    },
-    get_hessian_bound = function() { # Find hessian bound
-        get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
-            (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max())
-        }
+                                  return(c(mu_comp))
+                                },
+                                fisher_information = function() { # Fisher information
+                                  diag(c(self$sigma_est^-2, 4 * self$sigma_est^-2))
+                                },
+                                hessian_ll_i = function(i) { # Hessian log likelihood for datum i
+                                  diag(c(-self$sigma_est^-2, -self$sigma_est^-2 - 3 * (self$data_x[i] - self$x_hat)^2*self$sigma_est^(-4)))
+                                },
+                                get_hessian_bound = function() { # Find hessian bound
+                                  get_radial_bound <- function(i) { # Function for finding maximum eigenvalue for the ith hessian log likelihood
+                                    (eigen(self$hessian_ll_i(i))$values %>% abs() %>% max())
+                                  }
 
-        # Upper bound based on n * fisher information
-        hessian_bound <- length(self$data_x) * (eigen(self$fisher_information())$values %>% abs() %>% max())
-        # Bound based on direct computation of n hessians at each datum
-        hessian_bound <- map_dbl(seq_along(self$data_x), ~ get_radial_bound(.x)) %>% max()
+                                  # Upper bound based on n * fisher information
+                                  hessian_bound <- length(self$data_x) * (eigen(self$fisher_information())$values %>% abs() %>% max())
+                                  # Bound based on direct computation of n hessians at each datum
+                                  hessian_bound <- map_dbl(seq_along(self$data_x), ~ get_radial_bound(.x)) %>% max()
 
-        return(hessian_bound)
-    },
-    print_debug = function() {
-      paste("Hessian Bound is: ", self$hessian_bound) %>% print()
-      paste("Lambda & Inv_lambda", self$lambda, self$inv_lambda) %>% print()
-      paste("Mean & SD:", mu_est, sigma_est) %>% print()
-    },
-    initialize = function(data_x, mu_true = NULL, sigma_true = NULL) {
-        self$data_x <- data_x
+                                  return(hessian_bound)
+                                },
+                                print_debug = function() {
+                                  paste("Hessian Bound is: ", self$hessian_bound) %>% print()
+                                  paste("Lambda & Inv_lambda", self$lambda, self$inv_lambda) %>% print()
+                                  paste("Mean & SD:", mu_est, sigma_est) %>% print()
+                                },
+                                initialize = function(data_x, mu_true = NULL, sigma_true = NULL) {
+                                  self$data_x <- data_x
 
-        # MAP estimates and MLE Estimates
-        mu_est <- mean(data_x)
-        sigma_est <- sd(data_x)
+                                  # MAP estimates and MLE Estimates
+                                  mu_est <- mean(data_x)
+                                  sigma_est <- sd(data_x)
 
-        self$x_hat <- mu_est
+                                  self$x_hat <- mu_est
 
-        self$mu_true <- mu_true
-        self$sigma_true <- sigma_true
-
-
-        self$n <- length(data_x)
-        self$sigma_est <- sigma_est
-
-        self$inv_lambda <- as.matrix(c(sqrt(self$n * self$sigma_est^-2)))
-        self$lambda <- solve(self$inv_lambda)
+                                  self$mu_true <- mu_true
+                                  self$sigma_true <- sigma_true
 
 
+                                  self$n <- length(data_x)
+                                  self$sigma_est <- sigma_est
 
-        # Normalising Constants
-        self$constant_pi_observed <- integrate(function(x) {map_dbl(x, ~ self$pi_observed(.x))}, lower = -Inf, upper = Inf)$value
-        self$constant_pi_actual <- integrate(function(x) {map_dbl(x, ~ self$pi_actual(.x))}, lower = -Inf, upper = Inf)$value
+                                  self$inv_lambda <- as.matrix(c(sqrt(self$n * self$sigma_est^-2)))
+                                  self$lambda <- solve(self$inv_lambda)
 
-        self$hessian_bound <- self$get_hessian_bound()
 
-        super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
 
-        invisible(self)
-    }
-    )
+                                  # Normalising Constants
+                                  self$constant_pi_observed <- integrate(function(x) {map_dbl(x, ~ self$pi_observed(.x))}, lower = -Inf, upper = Inf)$value
+                                  self$constant_pi_actual <- integrate(function(x) {map_dbl(x, ~ self$pi_actual(.x))}, lower = -Inf, upper = Inf)$value
+
+                                  self$hessian_bound <- self$get_hessian_bound()
+
+                                  super$initialize(n = length(data_x), d = 1, x_hat = mu_est, hessian_bound = self$hessian_bound)
+
+                                  invisible(self)
+                                }
+                              )
 )

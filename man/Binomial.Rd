@@ -12,7 +12,7 @@ model_glm <- glm(y ~ x - 1, family = binomial)
 binomial_data <- Binomial$new(y = y, x = x)
 }
 \section{Super classes}{
-\code{Scale2::Data} -> \code{Scale2::GLM} -> \code{Binomial}
+\code{\link[Scale2:Data]{Scale2::Data}} -> \code{Scale2::GLM} -> \code{Binomial}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

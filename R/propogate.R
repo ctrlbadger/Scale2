@@ -64,11 +64,18 @@ propogate_to_time_target <- function(p, time_target, data, rescale, subsample) {
     print("time next not equal to time target")
   }
 
-  # Update weights to time_target
-  p$path_curr <- update_trajectory(p)
-  incr_log_weight <- incr_log_weight - p$phi_l * (p$time_next - p$time_curr) + log(p$phi_u - phi_pi(p$path_curr)) - log(p$phi_u - p$phi_l)
+  # # Update weights to time_target
+  # p$path_curr <- update_trajectory(p)
+  # incr_log_weight <- incr_log_weight - p$phi_l * (p$time_next - p$time_curr) + log(p$phi_u - phi_pi(p$path_curr)) - log(p$phi_u - p$phi_l)
+  #
+  # # Update BM path to final time_target
+  #
+  # p$time_curr <- p$time_next
 
+  # Update weights to time_target
   # Update BM path to final time_target
+  p$path_curr <- update_trajectory(p)
+  incr_log_weight <- incr_log_weight - p$phi_l * (p$time_next - p$time_curr)
 
   p$time_curr <- p$time_next
 

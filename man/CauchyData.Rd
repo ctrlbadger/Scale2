@@ -8,7 +8,7 @@ Distribution Info for sampling from cauchy distribution, inherits from Data
 Defines grad and laplacian with a flat prior
 }
 \section{Super class}{
-\code{Scale2::Data} -> \code{CauchyData}
+\code{\link[Scale2:Data]{Scale2::Data}} -> \code{CauchyData}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

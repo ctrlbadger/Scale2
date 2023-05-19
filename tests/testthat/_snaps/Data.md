@@ -49,6 +49,9 @@
           x_hat_total_lap_ll: -0.815250481267431
           x_scale: function (x) 
           x_unscale: function (x) 
+        Private:
+          grad_ll: function (x, idx) 
+          lap_ll: function (x, idx) 
 
 # Large Normal Data:
 
@@ -101,6 +104,9 @@
           x_hat_total_lap_ll: -93.331885205312
           x_scale: function (x) 
           x_unscale: function (x) 
+        Private:
+          grad_ll: function (x, idx) 
+          lap_ll: function (x, idx) 
 
 # Centered Cauchy Example
 
@@ -145,6 +151,9 @@
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
           x_unscale: function (x) 
+        Private:
+          grad_ll: function (x, idx) 
+          lap_ll: function (x, idx) 
 
 # Deviated Cauchy Example
 
@@ -189,4 +198,7 @@
           x_hat_total_lap_ll: -2
           x_scale: function (x) 
           x_unscale: function (x) 
+        Private:
+          grad_ll: function (x, idx) 
+          lap_ll: function (x, idx) 
 

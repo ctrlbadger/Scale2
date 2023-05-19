@@ -11,7 +11,7 @@ list2env(bivariate_normal_n20_b5neg2, rlang::current_env())
 bi_normal <- Normal$new(y, x)
 }
 \section{Super classes}{
-\code{Scale2::Data} -> \code{Scale2::GLM} -> \code{Normal}
+\code{\link[Scale2:Data]{Scale2::Data}} -> \code{Scale2::GLM} -> \code{Normal}
 }
 \section{Methods}{
 \subsection{Public methods}{
